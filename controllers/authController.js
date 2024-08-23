@@ -42,7 +42,7 @@ exports.registerUser = async (req, res) => {
     // Sign the token
     jwt.sign(
       payload,
-      process.env.JWT_SECRET,
+      'MEDTECH@$HACKATHON',
       { expiresIn: "1h" },
       (err, token) => {
         if (err) throw err;

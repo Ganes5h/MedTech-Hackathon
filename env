@@ -1,0 +1,8 @@
+MONGO_URL="mongodb://localhost:27017/medtech-hackathon"
+//"mongodb+srv://gneshkugaji:gfoE4cTZChTpGXiH@medtech.kxgo7.mongodb.net/medtech?retryWrites=true&w=majority&appName=MedTech"
+MONGO_COMPASS="mongodb://localhost:27017/medtech-hackathon"
+//"mongodb+srv://gneshkugaji:gfoE4cTZChTpGXiH@medtech.kxgo7.mongodb.net/medtech"
+MONGO_ORIGINAL_PASS="gfoE4cTZChTpGXiH"
+# MONGO_PASS="jBcbyR62LQsCmDl8"
+PORT=5000
+JWT_SECRET="GaneshKugaji"
