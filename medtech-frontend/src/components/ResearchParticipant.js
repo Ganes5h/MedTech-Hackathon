@@ -1,35 +1,129 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import {
-  TextField,
-  Button,
-  List,
-  ListItem,
-  Typography,
-  Box,
-  CircularProgress,
-  Divider,
-  IconButton,
+  TextField, Button, List, Typography, Box, CircularProgress,
+  Container, Grid, Paper, Chip, AppBar, Toolbar,
+  CssBaseline, useScrollTrigger, Fab, Zoom
 } from '@mui/material';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
+import { ThemeProvider, createTheme, styled } from '@mui/material/styles';
+import { motion, AnimatePresence } from 'framer-motion';
+import AddIcon from '@mui/icons-material/Add';
+import ScienceIcon from '@mui/icons-material/Science';
+import ChatIcon from '@mui/icons-material/Chat';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+
+const containerVariants = {
+    hidden: { opacity: 0, scale: 0.9 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      transition: {
+        staggerChildren: 0.2, 
+      },
+    },
+  };
+  
+  const itemVariants = {
+    hidden: { opacity: 0, y: 50 },
+    visible: { opacity: 1, y: 0 },
+  };
+  
+
+// Custom theme
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#2196f3',
+    },
+    secondary: {
+      main: '#ff4081',
+    },
+    background: {
+      default: '#f5f5f5',
+      paper: '#ffffff',
+    },
+  },
+  typography: {
+    fontFamily: 'Roboto, Arial, sans-serif',
+    h3: {
+      fontWeight: 700,
+    },
+    h5: {
+      fontWeight: 600,
+    },
+  },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8,
+        },
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          borderRadius: 12,
+        },
+      },
+    },
+  },
+});
+
+// Styled components
+const StyledPaper = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(3),
+  transition: 'all 0.3s ease-in-out',
+  '&:hover': {
+    transform: 'translateY(-5px)',
+    boxShadow: theme.shadows[8],
+  },
+}));
+
+const AnimatedListItem = styled(motion.div)(({ theme }) => ({
+  marginBottom: theme.spacing(2),
+}));
+
+const StyledFab = styled(Fab)(({ theme }) => ({
+  position: 'fixed',
+  bottom: theme.spacing(2),
+  right: theme.spacing(2),
+}));
+
+// Scroll to top component
+function ScrollTop(props) {
+  const { children } = props;
+  const trigger = useScrollTrigger({
+    disableHysteresis: true,
+    threshold: 100,
+  });
+
+  const handleClick = (event) => {
+    const anchor = (event.target.ownerDocument || document).querySelector('#back-to-top-anchor');
+    if (anchor) {
+      anchor.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  };
+
+  return (
+    <Zoom in={trigger}>
+      <Box onClick={handleClick} role="presentation" sx={{ position: 'fixed', bottom: 16, right: 16 }}>
+        {children}
+      </Box>
+    </Zoom>
+  );
+}
 
 const ParticipantTrials = () => {
   const [researchList, setResearchList] = useState([]);
   const [selectedResearch, setSelectedResearch] = useState('');
   const [trials, setTrials] = useState([]);
-  const [newTrialDesc, setNewTrialDesc] = useState('');
-  const [selectedTrial, setSelectedTrial] = useState(null);
-  const [newStageTitle, setNewStageTitle] = useState('');
-  const [newStageDesc, setNewStageDesc] = useState('');
-  const [result, setResult] = useState('');
-  const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch list of research projects
     const fetchResearchList = async () => {
       try {
-        const res = await axios.get('/api/researches');
+        const res = await axios.get('http://localhost:5000/api/research/researcher');
         setResearchList(res.data);
         setLoading(false);
       } catch (err) {
@@ -43,10 +137,9 @@ const ParticipantTrials = () => {
 
   useEffect(() => {
     if (selectedResearch) {
-      // Fetch trials for selected research
       const fetchTrials = async () => {
         try {
-          const res = await axios.get(`/api/trials/research/${selectedResearch}`);
+          const res = await axios.get(`http://localhost:5000/api/trail/research/${selectedResearch}`);
           setTrials(res.data);
         } catch (err) {
           console.error(err);
@@ -57,182 +150,89 @@ const ParticipantTrials = () => {
     }
   }, [selectedResearch]);
 
-  const handleCreateTrial = async () => {
-    try {
-      await axios.post('/api/trials', { researchId: selectedResearch, description: newTrialDesc });
-      setNewTrialDesc('');
-      // Refresh trials list
-      const res = await axios.get(`/api/trials/research/${selectedResearch}`);
-      setTrials(res.data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const handleAddStage = async () => {
-    if (!selectedTrial) return;
-    try {
-      await axios.post('/api/trials/addStage', { trialId: selectedTrial, title: newStageTitle, description: newStageDesc });
-      setNewStageTitle('');
-      setNewStageDesc('');
-      // Refresh trials list
-      const res = await axios.get(`/api/trials/research/${selectedResearch}`);
-      setTrials(res.data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const handleAddResult = async (trialId, stageId) => {
-    try {
-      await axios.post('/api/trials/addResult', { trialId, stageId, result });
-      setResult('');
-      // Refresh trials list
-      const res = await axios.get(`/api/trials/research/${selectedResearch}`);
-      setTrials(res.data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const handleAddCommunication = async () => {
-    if (!selectedTrial) return;
-    try {
-      await axios.post('/api/trials/addCommunication', { trialId: selectedTrial, participantId: 'currentParticipantId', message });
-      setMessage('');
-      // Refresh trials list
-      const res = await axios.get(`/api/trials/research/${selectedResearch}`);
-      setTrials(res.data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  if (loading) return <CircularProgress />;
+  if (loading) return (
+    <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+      <CircularProgress />
+    </Box>
+  );
 
   return (
-    <Box p={3}>
-      <Typography variant="h4" gutterBottom>
-        Manage Trials
-      </Typography>
-      <TextField
-        select
-        fullWidth
-        label="Select Research"
-        value={selectedResearch}
-        onChange={(e) => setSelectedResearch(e.target.value)}
-        SelectProps={{ native: true }}
-        margin="normal"
-      >
-        <option value="">Select Research</option>
-        {researchList.map((research) => (
-          <option key={research._id} value={research._id}>
-            {research.title}
-          </option>
-        ))}
-      </TextField>
-
-      <TextField
-        fullWidth
-        label="New Trial Description"
-        value={newTrialDesc}
-        onChange={(e) => setNewTrialDesc(e.target.value)}
-        margin="normal"
-      />
-      <Button variant="contained" color="primary" onClick={handleCreateTrial}>
-        Create Trial
-      </Button>
-
-      {trials.length > 0 && (
-        <List>
-          {trials.map((trial) => (
-            <ListItem key={trial._id}>
-              <Box flex={1} p={2} border={1} borderRadius={1} mb={2}>
-                <Typography variant="h6">{trial.description}</Typography>
-                <Button
-                  variant="outlined"
-                  color="primary"
-                  onClick={() => setSelectedTrial(trial._id)}
-                  sx={{ mt: 1 }}
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <AppBar position="static">
+        <Toolbar>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            Participant Trials Management
+          </Typography>
+        </Toolbar>
+      </AppBar>
+      <Toolbar id="back-to-top-anchor" />
+      <Container maxWidth="lg">
+        <Box py={4}>
+          <Typography variant="h3" gutterBottom component={motion.h3}
+            initial={{ opacity: 0, y: -50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            Manage Trials
+          </Typography>
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={6}>
+              <StyledPaper elevation={3}>
+                <Typography variant="h5" gutterBottom>Select Research</Typography>
+                <TextField
+                  select
+                  fullWidth
+                  label="Select Research"
+                  value={selectedResearch}
+                  onChange={(e) => setSelectedResearch(e.target.value)}
+                  SelectProps={{ native: true }}
+                  margin="normal"
                 >
-                  Manage
-                </Button>
-              </Box>
-
-              {selectedTrial === trial._id && (
-                <Box p={2} border={1} borderColor="grey.300" borderRadius={1} mt={2}>
-                  <Typography variant="h6">Manage {trial.description}</Typography>
-                  <Divider sx={{ my: 2 }} />
-
-                  <TextField
-                    fullWidth
-                    label="New Stage Title"
-                    value={newStageTitle}
-                    onChange={(e) => setNewStageTitle(e.target.value)}
-                    margin="normal"
-                  />
-                  <TextField
-                    fullWidth
-                    label="New Stage Description"
-                    value={newStageDesc}
-                    onChange={(e) => setNewStageDesc(e.target.value)}
-                    margin="normal"
-                  />
-                  <Button
-                    variant="contained"
-                    color="secondary"
-                    onClick={handleAddStage}
-                    sx={{ mt: 2 }}
-                  >
-                    Add Stage
-                  </Button>
-
-                  <Typography variant="h6" mt={4}>
-                    Add Result to Stages
-                  </Typography>
-                  {trial.stages.map((stage) => (
-                    <Box key={stage._id} p={2} border={1} borderColor="grey.300" borderRadius={1} mb={2}>
-                      <Typography variant="subtitle1">{stage.title}</Typography>
-                      <Typography variant="body2">{stage.description}</Typography>
-                      <TextField
-                        fullWidth
-                        label="Add Result"
-                        value={result}
-                        onChange={(e) => setResult(e.target.value)}
-                        margin="normal"
-                      />
-                      <Button
-                        variant="contained"
-                        color="success"
-                        onClick={() => handleAddResult(trial._id, stage._id)}
-                      >
-                        Add Result
-                      </Button>
-                    </Box>
+                  <option value="">Select Research</option>
+                  {researchList.map((research) => (
+                    <option key={research._id} value={research._id}>
+                      {research.title}
+                    </option>
                   ))}
+                </TextField>
+              </StyledPaper>
+            </Grid>
+          </Grid>
 
-                  <TextField
-                    fullWidth
-                    label="New Communication"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    margin="normal"
-                  />
-                  <Button
-                    variant="contained"
-                    color="info"
-                    onClick={handleAddCommunication}
-                    sx={{ mt: 2 }}
-                  >
-                    Add Communication
-                  </Button>
-                </Box>
-              )}
-            </ListItem>
-          ))}
-        </List>
-      )}
-    </Box>
+          <AnimatePresence>
+            {trials.length > 0 && (
+              <motion.div
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+              >
+                <List>
+                  {trials.map((trial) => (
+                    <AnimatedListItem key={trial._id} variants={itemVariants}>
+                      <StyledPaper elevation={3}>
+                        <Typography variant="h5">{trial.description}</Typography>
+                        <Chip
+                          icon={<ScienceIcon />}
+                          label={`${trial.stages.length} Stages`}
+                          color="primary"
+                          sx={{ mt: 1 }}
+                        />
+                      </StyledPaper>
+                    </AnimatedListItem>
+                  ))}
+                </List>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </Box>
+      </Container>
+      <ScrollTop>
+        <StyledFab color="primary" size="small" aria-label="scroll back to top">
+          <KeyboardArrowUpIcon />
+        </StyledFab>
+      </ScrollTop>
+    </ThemeProvider>
   );
 };
 

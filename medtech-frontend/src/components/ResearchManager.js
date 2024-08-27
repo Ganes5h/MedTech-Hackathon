@@ -1,39 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Button, Input, TextareaAutosize, Select, MenuItem, Modal, List, ListItem, ListItemText } from '@mui/material';
+import {
+  Button, TextField, Select, MenuItem, Modal,
+  List, ListItem, ListItemText, Typography, Paper, Grid, Box,
+  AppBar, Toolbar, IconButton, Divider, Snackbar, Alert,
+  Container, Card, CardContent, CardActions
+} from '@mui/material';
 import { styled } from '@mui/system';
+import AddIcon from '@mui/icons-material/Add';
+import CloseIcon from '@mui/icons-material/Close';
 
-const Container = styled('div')({
-  maxWidth: '1200px',
-  margin: '0 auto',
-  padding: '20px',
-});
+const StyledPaper = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(3),
+  marginBottom: theme.spacing(3),
+}));
 
-const Header = styled('h1')({
-  textAlign: 'center',
-  marginBottom: '20px',
-});
+const StyledModal = styled(Modal)(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+}));
 
-const FormSection = styled('div')({
-  marginBottom: '20px',
-});
-
-const InputField = styled(Input)({
+const ModalContent = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(4),
+  outline: 'none',
+  maxWidth: 400,
   width: '100%',
-  marginBottom: '10px',
-});
-
-const TextAreaField = styled(TextareaAutosize)({
-  width: '100%',
-  marginBottom: '10px',
-  padding: '10px',
-  borderRadius: '4px',
-  border: '1px solid #ddd',
-});
-
-const ActionButton = styled(Button)({
-  marginRight: '10px',
-});
+}));
 
 const ResearchManager = () => {
   const [research, setResearch] = useState(null);
@@ -48,9 +41,9 @@ const ResearchManager = () => {
   const [newParticipant, setNewParticipant] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedResearch, setSelectedResearch] = useState('');
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' });
 
   useEffect(() => {
-    // Fetch initial data (you can replace with actual API endpoints)
     fetchResearches();
     fetchParticipants();
   }, []);
@@ -61,6 +54,7 @@ const ResearchManager = () => {
       setResearch(data);
     } catch (error) {
       console.error('Error fetching research:', error);
+      showSnackbar('Error fetching research', 'error');
     }
   };
 
@@ -70,6 +64,7 @@ const ResearchManager = () => {
       setParticipants(data);
     } catch (error) {
       console.error('Error fetching participants:', error);
+      showSnackbar('Error fetching participants', 'error');
     }
   };
 
@@ -85,8 +80,10 @@ const ResearchManager = () => {
     try {
       await axios.post('/api/research/addParticipant', { researchId: selectedResearch, participantId: newParticipant });
       fetchResearches();
+      showSnackbar('Participant added successfully', 'success');
     } catch (error) {
       console.error('Error adding participant:', error);
+      showSnackbar('Error adding participant', 'error');
     }
   };
 
@@ -94,8 +91,10 @@ const ResearchManager = () => {
     try {
       await axios.post('/api/participants/request', { researchId });
       fetchResearches();
+      showSnackbar('Request sent successfully', 'success');
     } catch (error) {
       console.error('Error requesting to join research:', error);
+      showSnackbar('Error sending request', 'error');
     }
   };
 
@@ -103,8 +102,10 @@ const ResearchManager = () => {
     try {
       await axios.post('/api/research/acceptRequest', { researchId: selectedResearch, participantId });
       fetchResearches();
+      showSnackbar('Request accepted', 'success');
     } catch (error) {
       console.error('Error accepting participant request:', error);
+      showSnackbar('Error accepting request', 'error');
     }
   };
 
@@ -112,8 +113,10 @@ const ResearchManager = () => {
     try {
       await axios.post('/api/research/rejectRequest', { researchId: selectedResearch, participantId });
       fetchResearches();
+      showSnackbar('Request rejected', 'success');
     } catch (error) {
       console.error('Error rejecting participant request:', error);
+      showSnackbar('Error rejecting request', 'error');
     }
   };
 
@@ -121,8 +124,11 @@ const ResearchManager = () => {
     try {
       await axios.post('/api/trials/create', { researchId: selectedResearch, description: formData.description });
       fetchTrials();
+      setModalOpen(false);
+      showSnackbar('Trial created successfully', 'success');
     } catch (error) {
       console.error('Error creating trial:', error);
+      showSnackbar('Error creating trial', 'error');
     }
   };
 
@@ -132,93 +138,187 @@ const ResearchManager = () => {
       setTrials(data);
     } catch (error) {
       console.error('Error fetching trials:', error);
+      showSnackbar('Error fetching trials', 'error');
     }
   };
 
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') return;
+    setSnackbar({ ...snackbar, open: false });
+  };
+
+  const showSnackbar = (message, severity = 'info') => {
+    setSnackbar({ open: true, message, severity });
+  };
+
   return (
-    <Container>
-      <Header>Research Manager</Header>
+    <Box sx={{ flexGrow: 1 }}>
+      <AppBar position="static">
+        <Toolbar>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            Research Manager
+          </Typography>
+        </Toolbar>
+      </AppBar>
+      <Container maxWidth="lg" sx={{ mt: 4 }}>
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={6}>
+            <StyledPaper elevation={3}>
+              <Typography variant="h5" gutterBottom>Create or Update Research</Typography>
+              <TextField
+                fullWidth
+                label="Title"
+                name="title"
+                value={formData.title}
+                onChange={handleInputChange}
+                margin="normal"
+              />
+              <TextField
+                fullWidth
+                label="Description"
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                multiline
+                rows={4}
+                margin="normal"
+              />
+              <Button
+                variant="contained"
+                color="primary"
+                startIcon={<AddIcon />}
+                onClick={handleCreateTrial}
+                sx={{ mt: 2 }}
+              >
+                Create/Update Research
+              </Button>
+            </StyledPaper>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <StyledPaper elevation={3}>
+              <Typography variant="h5" gutterBottom>Add Participant</Typography>
+              <Select
+                fullWidth
+                value={newParticipant}
+                onChange={(e) => setNewParticipant(e.target.value)}
+                margin="normal"
+              >
+                {participants.map((participant) => (
+                  <MenuItem key={participant._id} value={participant._id}>
+                    {participant.name}
+                  </MenuItem>
+                ))}
+              </Select>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleAddParticipant}
+                sx={{ mt: 2 }}
+              >
+                Add Participant
+              </Button>
+            </StyledPaper>
+          </Grid>
+          <Grid item xs={12}>
+            <StyledPaper elevation={3}>
+              <Typography variant="h5" gutterBottom>Participant Requests</Typography>
+              <List>
+                {participantRequests.map((request) => (
+                  <ListItem key={request._id}>
+                    <ListItemText primary={request.name} />
+                    <Button
+                      variant="outlined"
+                      color="success"
+                      onClick={() => handleAcceptRequest(request._id)}
+                      sx={{ mr: 1 }}
+                    >
+                      Accept
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      onClick={() => handleRejectRequest(request._id)}
+                    >
+                      Reject
+                    </Button>
+                  </ListItem>
+                ))}
+              </List>
+            </StyledPaper>
+          </Grid>
+          <Grid item xs={12}>
+            <StyledPaper elevation={3}>
+              <Typography variant="h5" gutterBottom>Trials</Typography>
+              <Button
+                variant="contained"
+                color="primary"
+                startIcon={<AddIcon />}
+                onClick={() => setModalOpen(true)}
+                sx={{ mb: 2 }}
+              >
+                Create Trial
+              </Button>
+              <Grid container spacing={2}>
+                {trials.map((trial) => (
+                  <Grid item xs={12} sm={6} md={4} key={trial._id}>
+                    <Card>
+                      <CardContent>
+                        <Typography variant="h6" component="div">
+                          Trial
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          {trial.description}
+                        </Typography>
+                      </CardContent>
+                      <CardActions>
+                        <Button size="small">View Details</Button>
+                      </CardActions>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+            </StyledPaper>
+          </Grid>
+        </Grid>
+      </Container>
 
-      <FormSection>
-        <h2>Create or Update Research</h2>
-        <InputField
-          name="title"
-          placeholder="Title"
-          value={formData.title}
-          onChange={handleInputChange}
-        />
-        <TextAreaField
-          name="description"
-          placeholder="Description"
-          value={formData.description}
-          onChange={handleInputChange}
-          minRows={3}
-        />
-        {/* Media upload functionality can be added here */}
-        <ActionButton variant="contained" color="primary" onClick={handleCreateTrial}>Create/Update Research</ActionButton>
-      </FormSection>
+      <StyledModal open={modalOpen} onClose={() => setModalOpen(false)}>
+        <ModalContent>
+          <Typography variant="h6" component="h2" gutterBottom>
+            Create Trial
+          </Typography>
+          <TextField
+            fullWidth
+            label="Trial Description"
+            name="description"
+            value={formData.description}
+            onChange={handleInputChange}
+            multiline
+            rows={4}
+            margin="normal"
+          />
+          <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
+            <Button onClick={() => setModalOpen(false)} sx={{ mr: 1 }}>
+              Cancel
+            </Button>
+            <Button variant="contained" color="primary" onClick={handleCreateTrial}>
+              Create Trial
+            </Button>
+          </Box>
+        </ModalContent>
+      </StyledModal>
 
-      <FormSection>
-        <h2>Add Participant</h2>
-        <Select
-          value={newParticipant}
-          onChange={(e) => setNewParticipant(e.target.value)}
-        >
-          {participants.map((participant) => (
-            <MenuItem key={participant._id} value={participant._id}>
-              {participant.name}
-            </MenuItem>
-          ))}
-        </Select>
-        <ActionButton variant="contained" color="primary" onClick={handleAddParticipant}>Add Participant</ActionButton>
-      </FormSection>
-
-      <FormSection>
-        <h2>Participant Requests</h2>
-        <List>
-          {participantRequests.map((request) => (
-            <ListItem key={request._id}>
-              <ListItemText primary={request.name} />
-              <ActionButton variant="contained" color="success" onClick={() => handleAcceptRequest(request._id)}>Accept</ActionButton>
-              <ActionButton variant="contained" color="error" onClick={() => handleRejectRequest(request._id)}>Reject</ActionButton>
-            </ListItem>
-          ))}
-        </List>
-      </FormSection>
-
-      <FormSection>
-        <h2>Create Trial</h2>
-        <ActionButton variant="contained" color="primary" onClick={() => setModalOpen(true)}>Create Trial</ActionButton>
-        <Modal
-          open={modalOpen}
-          onClose={() => setModalOpen(false)}
-        >
-          <div style={{ padding: '20px', backgroundColor: 'white', borderRadius: '8px' }}>
-            <h2>Create Trial</h2>
-            <TextAreaField
-              name="description"
-              placeholder="Trial Description"
-              value={formData.description}
-              onChange={handleInputChange}
-              minRows={3}
-            />
-            <ActionButton variant="contained" color="primary" onClick={handleCreateTrial}>Create Trial</ActionButton>
-          </div>
-        </Modal>
-      </FormSection>
-
-      <FormSection>
-        <h2>Trials</h2>
-        <List>
-          {trials.map((trial) => (
-            <ListItem key={trial._id}>
-              <ListItemText primary={trial.description} />
-              {/* Additional trial details and functionalities can be added here */}
-            </ListItem>
-          ))}
-        </List>
-      </FormSection>
-    </Container>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={handleSnackbarClose} severity={snackbar.severity} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+    </Box>
   );
 };
 
