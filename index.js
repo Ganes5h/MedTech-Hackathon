@@ -25,15 +25,10 @@ app.get("/", (req, res) => {
 });
 
 // Routes of Application
-// app.use("/api/user/auth", require("./routes/authRoutes"));
-app.use("/api/user/auth", require("./routes/authRoutes"));
-app.use("/api/participants", require("./routes/participantRoutes"));
-app.use("/api/trials", require("./routes/trialRoutes"));
-app.use("/api/comminication", require("./routes/communicationLogRoutes"));
-app.use("/api/matching", require("./routes/matchingLogRoutes"));
-app.use("/api/outreach", require("./routes/outreachRoutes"));
-app.use("/api/applications", require("./routes/applicationRoutes")); 
-app.use("/api/notifications", require("./routes/notificationRoutes"));
+app.use('/api/auth',require('./routes/userRoute'));
+app.use('/api/research',require('./routes/researchRoute'));
+app.use('/api/participant',require('./routes/participantRoute'));
+app.use('/api/trail',require('./routes/trailRoute'))
 
 // Start the server
 const PORT = process.env.PORT || 5000;

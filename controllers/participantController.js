@@ -1,97 +1,84 @@
-const Participant = require("../models/participantModel");
-const User = require("../models/userModel");
-const { validationResult } = require("express-validator");
+// controllers/participantController.js
+const Research = require('../models/ResearchModel');
+const User = require('../models/userModel');
 
-// Create a participant
-exports.createParticipant = async (req, res) => {
-  // const errors = validationResult(req);
-  // if (!errors.isEmpty()) {
-  //   return res.status(400).json({ errors: errors.array() });
-  // }
-
-  const { demographics, medicalHistory, preferences } = req.body;
+// Request to Join Research
+exports.requestToJoinResearch = async (req, res) => {
+  const { researchId } = req.body;
 
   try {
-    const participant = new Participant({
-      userId: req.user.id,
-      demographics,
-      medicalHistory,
-      preferences,
-    });
-
-    await participant.save();
-    res.status(201).json(participant);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Server Error");
-  }
-};
-
-// Get participant by ID
-exports.getParticipantById = async (req, res) => {
-  try {
-    const participant = await Participant.findById(req.params.id).populate(
-      "userId",
-      ["name", "email"]
-    );
-    if (!participant) {
-      return res.status(404).json({ msg: "Participant not found" });
-    }
-    res.json(participant);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Server Error");
-  }
-};
-
-// Update participant
-exports.updateParticipant = async (req, res) => {
-  const { demographics, medicalHistory, preferences } = req.body;
-
-  try {
-    const participant = await Participant.findById(req.params.id);
-    if (!participant) {
-      return res.status(404).json({ msg: "Participant not found" });
+    const research = await Research.findById(researchId);
+    if (!research) {
+      return res.status(404).json({ msg: 'Research not found' });
     }
 
-    participant.demographics = demographics || participant.demographics;
-    participant.medicalHistory = medicalHistory || participant.medicalHistory;
-    participant.preferences = preferences || participant.preferences;
-
-    await participant.save();
-    res.json(participant);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Server Error");
-  }
-};
-
-// Delete participant
-exports.deleteParticipant = async (req, res) => {
-  try {
-    const participant = await Participant.findById(req.params.id);
-    if (!participant) {
-      return res.status(404).json({ msg: "Participant not found" });
+    if (research.participants.includes(req.user.id)) {
+      return res.status(400).json({ msg: 'Already a participant in this research' });
     }
 
-    await participant.remove();
-    res.json({ msg: "Participant removed" });
+    // Add participant request
+    research.participantRequests.push(req.user.id);
+    await research.save();
+    res.json(research);
   } catch (err) {
     console.error(err.message);
-    res.status(500).send("Server Error");
+    res.status(500).send('Server Error');
   }
 };
 
-// List all participants
-exports.listParticipants = async (req, res) => {
+// Accept Participant Request
+exports.acceptParticipantRequest = async (req, res) => {
+  const { researchId, participantId } = req.body;
+
   try {
-    const participants = await Participant.find().populate("userId", [
-      "name",
-      "email",
-    ]);
-    res.json(participants);
+    const research = await Research.findById(researchId);
+    if (!research) {
+      return res.status(404).json({ msg: 'Research not found' });
+    }
+
+    if (research.createdBy.toString() !== req.user.id) {
+      return res.status(401).json({ msg: 'User not authorized' });
+    }
+
+    if (!research.participantRequests.includes(participantId)) {
+      return res.status(400).json({ msg: 'Participant request not found' });
+    }
+
+    // Accept participant request
+    research.participants.push(participantId);
+    research.participantRequests = research.participantRequests.filter(id => id.toString() !== participantId);
+    await research.save();
+    res.json(research);
   } catch (err) {
     console.error(err.message);
-    res.status(500).send("Server Error");
+    res.status(500).send('Server Error');
+  }
+};
+
+// Reject Participant Request
+exports.rejectParticipantRequest = async (req, res) => {
+  const { researchId, participantId } = req.body;
+
+  try {
+    const research = await Research.findById(researchId);
+    if (!research) {
+      return res.status(404).json({ msg: 'Research not found' });
+    }
+
+    if (research.createdBy.toString() !== req.user.id) {
+      return res.status(401).json({ msg: 'User not authorized' });
+    }
+
+    if (!research.participantRequests.includes(participantId)) {
+      return res.status(400).json({ msg: 'Participant request not found' });
+    }
+
+    // Reject participant request
+    research.participantRequests = research.participantRequests.filter(id => id.toString() !== participantId);
+    await research.save();
+    res.json(research);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
   }
 };
