@@ -1,173 +1,220 @@
 import React from 'react';
-import { Container, Typography, Button, Box, Grid, Paper } from '@mui/material';
 import { motion } from 'framer-motion';
-import Navbar from './Navbar';
-import Footer from './Footer';
+import { Link } from 'react-router-dom';
+import { ArrowRight, Check, Users, Target, Cog, ChevronDown } from 'lucide-react';
 
-const containerVariants = {
-  hidden: { opacity: 0, y: 50 },
-  visible: { opacity: 1, y: 0, transition: { duration: 1, ease: "easeOut" } }
-};
-
-const headingVariants = {
-  hidden: { opacity: 0, y: 50 },
-  visible: { opacity: 1, y: 0, transition: { duration: 1.5, ease: "easeOut" } }
-};
-
-const textVariants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { delay: 0.5, duration: 1.2, ease: "easeOut" } }
-};
-
-const buttonVariants = {
-  hover: { scale: 1.1, boxShadow: "0px 10px 20px rgba(0, 0, 0, 0.2)", transition: { yoyo: Infinity, duration: 0.3 } }
-};
-
-const featureVariants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 1, ease: "easeOut" } }
-};
-
-const solutionVariants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 1, ease: "easeOut" } }
+const FadeInWhenVisible = ({ children }) => {
+  return (
+    <motion.div
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true }}
+      transition={{ duration: 0.3 }}
+      variants={{
+        visible: { opacity: 1, scale: 1 },
+        hidden: { opacity: 0, scale: 0.8 }
+      }}
+    >
+      {children}
+    </motion.div>
+  );
 };
 
 const LandingPage = () => {
   return (
-    <div>
-      <Navbar />
-
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        variants={containerVariants}
-        style={{ backgroundColor: '#F4F6F8', padding: '80px 0', textAlign: 'center' }}
-      >
-        <Container>
-          <motion.div variants={headingVariants}>
-            <Typography variant="h2" gutterBottom style={{ fontWeight: 700, color: '#333', marginBottom: '20px' }}>
-              Clinical Trial Recruitment and Management Platform
-            </Typography>
-          </motion.div>
-          
-          <motion.div variants={textVariants} style={{ marginTop: '20px' }}>
-            <Typography variant="h6" style={{ color: '#555', maxWidth: '700px', margin: '0 auto' }}>
-              Efficient Recruitment, Enhanced Diversity, and Improved Management
-            </Typography>
-          </motion.div>
-
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+      {/* Hero Section */}
+      <section className="relative h-screen flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 z-0">
           <motion.div
-            variants={textVariants}
-            style={{ marginTop: '40px' }}
+            className="w-full h-full bg-blue-600 opacity-10"
+            animate={{
+              scale: [1, 1.1, 1],
+              rotate: [0, 5, -5, 0],
+            }}
+            transition={{
+              duration: 20,
+              ease: "easeInOut",
+              times: [0, 0.5, 1],
+              repeat: Infinity,
+            }}
+          />
+        </div>
+        <div className="container mx-auto px-6 text-center relative z-10">
+          <motion.h1 
+            className="text-5xl md:text-7xl font-extrabold text-gray-900 mb-6"
+            initial={{ opacity: 0, y: -50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <Button
-              variant="contained"
-              color="primary"
-              size="large"
-              component={motion.div}
-              variants={buttonVariants}
-              style={{ padding: '12px 24px', borderRadius: '8px' }}
-            >
-              Get Started
-            </Button>
+            Revolutionize Your Clinical Trials
+          </motion.h1>
+          <motion.p 
+            className="text-xl md:text-2xl text-gray-700 mb-10 max-w-3xl mx-auto"
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+          >
+            Efficient Recruitment, Enhanced Diversity, and Improved Management in One Powerful Platform
+          </motion.p>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+            className="space-x-4"
+          >
+            <Link to="/research-studies" className="bg-blue-600 text-white px-10 py-4 rounded-full text-lg font-semibold hover:bg-blue-700 transition shadow-lg hover:shadow-xl inline-flex items-center transform hover:scale-105">
+              Explore Research Studies
+              <ArrowRight className="ml-2" size={24} />
+            </Link>
+            <button className="bg-white text-blue-600 px-10 py-4 rounded-full text-lg font-semibold hover:bg-gray-100 transition shadow-lg hover:shadow-xl inline-flex items-center transform hover:scale-105">
+              Learn More
+            </button>
           </motion.div>
-        </Container>
-      </motion.div>
+        </div>
+        <motion.div
+          className="absolute bottom-10 left-1/2 transform -translate-x-1/2"
+          animate={{ y: [0, 10, 0] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+        >
+          <ChevronDown size={40} className="text-gray-500" />
+        </motion.div>
+      </section>
 
-      <Container>
-        <Grid container spacing={4} style={{ marginTop: '80px' }}>
-          <Grid item xs={12} md={4}>
-            <motion.div
-              initial="hidden"
-              animate="visible"
-              variants={featureVariants}
-            >
-              <Paper elevation={8} style={{ padding: '40px', textAlign: 'center', borderRadius: '12px', backgroundColor: '#fff', boxShadow: '0px 10px 30px rgba(0, 0, 0, 0.1)' }}>
-                <Typography variant="h5" style={{ fontWeight: 600, color: '#222' }}>Efficient Recruitment</Typography>
-                <Typography variant="body1" style={{ marginTop: '15px', color: '#666' }}>
-                  Streamline your recruitment processes with our intuitive platform.
-                </Typography>
-              </Paper>
-            </motion.div>
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <motion.div
-              initial="hidden"
-              animate="visible"
-              variants={featureVariants}
-            >
-              <Paper elevation={8} style={{ padding: '40px', textAlign: 'center', borderRadius: '12px', backgroundColor: '#fff', boxShadow: '0px 10px 30px rgba(0, 0, 0, 0.1)' }}>
-                <Typography variant="h5" style={{ fontWeight: 600, color: '#222' }}>Enhanced Diversity</Typography>
-                <Typography variant="body1" style={{ marginTop: '15px', color: '#666' }}>
-                  Reach a diverse pool of candidates with our targeted tools and features.
-                </Typography>
-              </Paper>
-            </motion.div>
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <motion.div
-              initial="hidden"
-              animate="visible"
-              variants={featureVariants}
-            >
-              <Paper elevation={8} style={{ padding: '40px', textAlign: 'center', borderRadius: '12px', backgroundColor: '#fff', boxShadow: '0px 10px 30px rgba(0, 0, 0, 0.1)' }}>
-                <Typography variant="h5" style={{ fontWeight: 600, color: '#222' }}>Improved Management</Typography>
-                <Typography variant="body1" style={{ marginTop: '15px', color: '#666' }}>
-                  Manage your trials with ease using our advanced management features.
-                </Typography>
-              </Paper>
-            </motion.div>
-          </Grid>
-        </Grid>
-      </Container>
+      {/* Features Section */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-6">
+          <FadeInWhenVisible>
+            <h2 className="text-4xl font-bold text-center text-gray-800 mb-12">Our Key Features</h2>
+          </FadeInWhenVisible>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+            <FadeInWhenVisible>
+              <div className="text-center">
+                <Users size={48} className="mx-auto text-blue-600 mb-4" />
+                <h3 className="text-2xl font-semibold mb-2">Enhanced Recruitment</h3>
+                <p className="text-gray-600">Reach a diverse pool of participants quickly and efficiently.</p>
+              </div>
+            </FadeInWhenVisible>
+            <FadeInWhenVisible>
+              <div className="text-center">
+                <Target size={48} className="mx-auto text-blue-600 mb-4" />
+                <h3 className="text-2xl font-semibold mb-2">Precision Targeting</h3>
+                <p className="text-gray-600">Find the right participants for your specific research needs.</p>
+              </div>
+            </FadeInWhenVisible>
+            <FadeInWhenVisible>
+              <div className="text-center">
+                <Cog size={48} className="mx-auto text-blue-600 mb-4" />
+                <h3 className="text-2xl font-semibold mb-2">Streamlined Management</h3>
+                <p className="text-gray-600">Simplify trial operations with our comprehensive tools.</p>
+              </div>
+            </FadeInWhenVisible>
+          </div>
+        </div>
+      </section>
 
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        variants={solutionVariants}
-        style={{ backgroundColor: '#ffffff', padding: '80px 0', textAlign: 'center' }}
-      >
-        <Container>
-          <Typography variant="h4" style={{ fontWeight: 700, color: '#222', marginBottom: '40px' }}>
-            Our Solution
-          </Typography>
-          <Grid container spacing={4}>
-            <Grid item xs={12} md={4}>
-              <Paper elevation={3} style={{ padding: '30px', textAlign: 'center', borderRadius: '10px', backgroundColor: '#f5f5f5', boxShadow: '0px 6px 15px rgba(0, 0, 0, 0.1)' }}>
-                <Typography variant="h6" style={{ fontWeight: 600, color: '#333' }}>Automated Matching System</Typography>
-                <Typography variant="body1" style={{ marginTop: '15px', color: '#666' }}>
-                  AI-powered system pairs eligible participants with relevant trials based on medical history, demographics, and preferences.
-                </Typography>
-              </Paper>
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Paper elevation={3} style={{ padding: '30px', textAlign: 'center', borderRadius: '10px', backgroundColor: '#f5f5f5', boxShadow: '0px 6px 15px rgba(0, 0, 0, 0.1)' }}>
-                <Typography variant="h6" style={{ fontWeight: 600, color: '#333' }}>Targeted Outreach Campaigns</Typography>
-                <Typography variant="body1" style={{ marginTop: '15px', color: '#666' }}>
-                  Digital marketing and community engagement to reach underrepresented populations.
-                </Typography>
-              </Paper>
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Paper elevation={3} style={{ padding: '30px', textAlign: 'center', borderRadius: '10px', backgroundColor: '#f5f5f5', boxShadow: '0px 6px 15px rgba(0, 0, 0, 0.1)' }}>
-                <Typography variant="h6" style={{ fontWeight: 600, color: '#333' }}>Centralized Dashboard</Typography>
-                <Typography variant="body1" style={{ marginTop: '15px', color: '#666' }}>
-                  Manages participant data, applications, and communication efficiently.
-                </Typography>
-              </Paper>
-            </Grid>
-          </Grid>
-          <Typography variant="body1" style={{ marginTop: '40px', color: '#666', maxWidth: '800px', margin: '0 auto' }}>
-            <strong>Statistics:</strong> According to industry reports, AI-driven recruitment can reduce participant enrollment times by up to 50%.
-          </Typography>
-          <Typography variant="body1" style={{ marginTop: '20px', color: '#666', maxWidth: '800px', margin: '0 auto' }}>
-            <strong>USP:</strong> Our platform enhances recruitment speed, diversity, and management efficiency in clinical trials.
-          </Typography>
-        </Container>
-      </motion.div>
+      {/* Benefits Section */}
+      <section className="py-20 bg-gradient-to-r from-blue-600 to-blue-800 text-white">
+        <div className="container mx-auto px-6">
+          <FadeInWhenVisible>
+            <h2 className="text-4xl font-bold text-center mb-12">Benefits of Our Platform</h2>
+          </FadeInWhenVisible>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <FadeInWhenVisible>
+              <div className="flex items-start">
+                <Check size={24} className="text-green-400 mr-4 flex-shrink-0" />
+                <div>
+                  <h3 className="text-xl font-semibold mb-2">Faster Recruitment</h3>
+                  <p>Reduce time-to-start for your clinical trials with our advanced matching algorithms.</p>
+                </div>
+              </div>
+            </FadeInWhenVisible>
+            <FadeInWhenVisible>
+              <div className="flex items-start">
+                <Check size={24} className="text-green-400 mr-4 flex-shrink-0" />
+                <div>
+                  <h3 className="text-xl font-semibold mb-2">Increased Diversity</h3>
+                  <p>Access a wider, more diverse participant pool to enhance the quality of your research.</p>
+                </div>
+              </div>
+            </FadeInWhenVisible>
+            <FadeInWhenVisible>
+              <div className="flex items-start">
+                <Check size={24} className="text-green-400 mr-4 flex-shrink-0" />
+                <div>
+                  <h3 className="text-xl font-semibold mb-2">Cost-Effective</h3>
+                  <p>Optimize your budget with our efficient recruitment and management solutions.</p>
+                </div>
+              </div>
+            </FadeInWhenVisible>
+            <FadeInWhenVisible>
+              <div className="flex items-start">
+                <Check size={24} className="text-green-400 mr-4 flex-shrink-0" />
+                <div>
+                  <h3 className="text-xl font-semibold mb-2">Compliance Assured</h3>
+                  <p>Stay compliant with regulatory requirements using our built-in compliance tools.</p>
+                </div>
+              </div>
+            </FadeInWhenVisible>
+          </div>
+        </div>
+      </section>
 
-      <Footer />
+      {/* Call-to-Action Section */}
+      <section className="py-20 bg-gray-50">
+        <div className="container mx-auto px-6 text-center">
+          <FadeInWhenVisible>
+            <h2 className="text-4xl font-bold text-gray-800 mb-10">Ready to Transform Your Clinical Trials?</h2>
+          </FadeInWhenVisible>
+          <FadeInWhenVisible>
+            <Link
+              to="/research-studies"
+              className="bg-blue-600 text-white px-12 py-5 rounded-full text-xl font-semibold hover:bg-blue-700 transition shadow-lg hover:shadow-xl inline-flex items-center"
+            >
+              View Available Studies
+              <ArrowRight className="ml-3" size={24} />
+            </Link>
+          </FadeInWhenVisible>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white py-12">
+        <div className="container mx-auto px-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+              <h3 className="text-lg font-semibold mb-4">About Us</h3>
+              <p className="text-gray-400">Revolutionizing clinical trials with cutting-edge technology and participant-centric approaches.</p>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
+              <ul className="space-y-2">
+                <li><Link to="/about" className="text-gray-400 hover:text-white">About</Link></li>
+                <li><Link to="/services" className="text-gray-400 hover:text-white">Services</Link></li>
+                <li><Link to="/contact" className="text-gray-400 hover:text-white">Contact</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Legal</h3>
+              <ul className="space-y-2">
+                <li><Link to="/privacy" className="text-gray-400 hover:text-white">Privacy Policy</Link></li>
+                <li><Link to="/terms" className="text-gray-400 hover:text-white">Terms of Service</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Connect</h3>
+              <div className="flex space-x-4">
+                <a href="#" className="text-gray-400 hover:text-white"><i className="fab fa-twitter"></i></a>
+                <a href="#" className="text-gray-400 hover:text-white"><i className="fab fa-linkedin"></i></a>
+                <a href="#" className="text-gray-400 hover:text-white"><i className="fab fa-facebook"></i></a>
+              </div>
+            </div>
+          </div>
+          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+            <p>&copy; 2024 Clinical Trial Platform. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };

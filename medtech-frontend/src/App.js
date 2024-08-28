@@ -7,6 +7,8 @@ import SignUpComponent from './components/Authentication/SignUp';
 import ResearchManager from './components/ResearchManager';
 import ResearchParticipant from './components/ResearchParticipant';
 import LandingPage from './components/LandingPage';
+import ResearchStudiesPage from './components/researchStudies';
+import CreateResearchPage from './components/createResearch';
 function App() {
   return (
     <Router>
@@ -16,7 +18,9 @@ function App() {
           <Route path="/login" element={<LoginComponent />} />
           <Route path="/sign" element={<SignUpComponent />} />
           <Route path='/research'element={<ResearchManager/>}/>
+          <Route path='/research-studies'element={<ResearchStudiesPage/>}/>
           <Route path='/participant'element={<ResearchParticipant/>}/>
+          <Route path='/create'element={<CreateResearchPage/>}/>
 
         </Routes>
       </div>
