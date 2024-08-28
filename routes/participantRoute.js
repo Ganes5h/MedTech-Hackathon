@@ -4,7 +4,7 @@ const router = express.Router();
 const { requestToJoinResearch, acceptParticipantRequest, rejectParticipantRequest } = require('../controllers/participantController');
 
 // Middleware for authentication
-const auth = require('../middleware/auth');
+const auth = require('../middlewares/auth');
 
 router.post('/request', auth, requestToJoinResearch);
 router.post('/accept', auth, acceptParticipantRequest);

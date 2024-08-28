@@ -1,8 +1,8 @@
 // routes/trialRoutes.js
 const express = require('express');
 const router = express.Router();
-const auth = require('../middleware/auth');
-const { createTrial, addStageToTrial, addResultToStage, addCommunicationToTrial, getTrialsByResearch } = require('../controllers/trialController');
+const auth = require('../middlewares/auth');
+const { createTrial, addStageToTrial, addResultToStage, addCommunicationToTrial, getTrialsByResearch } = require('../controllers/trailController');
 
 router.post('/', auth, createTrial);  // Create trial
 router.post('/stage', auth, addStageToTrial);  // Add stage to trial

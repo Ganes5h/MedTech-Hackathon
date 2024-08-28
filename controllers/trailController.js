@@ -1,5 +1,5 @@
 // controllers/trialController.js
-const Trial = require('../models/trialModel');
+const Trial = require('../models/trailModel');
 const Research = require('../models/ResearchModel');
 const User = require('../models/userModel');
 const Notification = require('../models/notificationModel'); // Assuming a Notification model exists
