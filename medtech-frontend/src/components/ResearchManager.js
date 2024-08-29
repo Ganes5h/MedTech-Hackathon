@@ -45,149 +45,151 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 // Create a custom theme with a more vibrant and modern color palette
 const theme = createTheme({
-    palette: {
-      primary: {
-        main: '#2196f3', // A vibrant blue
-        light: '#64b5f6',
-        dark: '#1976d2',
-      },
-      secondary: {
-        main: '#ff4081', // A bright pink
-        light: '#ff80ab',
-        dark: '#c51162',
-      },
-      background: {
-        default: '#f5f5f5',
-        paper: '#ffffff',
-      },
-      text: {
-        primary: '#212121',
-        secondary: '#757575',
-      },
+  palette: {
+    primary: {
+      main: '#2196f3', // A vibrant blue
+      light: '#64b5f6',
+      dark: '#1976d2',
     },
-    typography: {
-      fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-      h1: {
-        fontSize: '2.5rem',
-        fontWeight: 700,
-        color: '#2196f3',
-      },
-      h2: {
-        fontSize: '2rem',
-        fontWeight: 600,
-      },
-      h3: {
-        fontSize: '1.75rem',
-        fontWeight: 500,
-      },
+    secondary: {
+      main: '#ff4081', // A bright pink
+      light: '#ff80ab',
+      dark: '#c51162',
     },
-    components: {
-      MuiButton: {
-        styleOverrides: {
-          root: {
-            borderRadius: 8,
-            textTransform: 'none',
-            fontWeight: 600,
-          },
-        },
-      },
-      MuiCard: {
-        styleOverrides: {
-          root: {
-            borderRadius: 16,
-            boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-          },
+    background: {
+      default: '#f5f5f5',
+      paper: '#ffffff',
+    },
+    text: {
+      primary: '#212121',
+      secondary: '#757575',
+    },
+  },
+  typography: {
+    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    h1: {
+      fontSize: '2.5rem',
+      fontWeight: 700,
+      color: '#2196f3',
+    },
+    h2: {
+      fontSize: '2rem',
+      fontWeight: 600,
+    },
+    h3: {
+      fontSize: '1.75rem',
+      fontWeight: 500,
+    },
+  },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8,
+          textTransform: 'none',
+          fontWeight: 600,
         },
       },
     },
-  });
-  
-  const StyledCard = styled(Card)(({ theme }) => ({
-    transition: 'all 0.3s cubic-bezier(.25,.8,.25,1)',
-    '&:hover': {
-      boxShadow: '0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22)',
-      transform: 'translateY(-5px)',
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          borderRadius: 16,
+          boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+        },
+      },
     },
-  }));
-  
-  const StyledChip = styled(Chip)(({ theme }) => ({
-    margin: theme.spacing(0.5),
-    fontWeight: 600,
-  }));
-  
-  const ResearchItem = ({ research, onCreateTrial, onViewTrials, onViewRequests }) => {
-    const [participants, setParticipants] = useState(0);
-  
-    useEffect(() => {
-        const fetchParticipants = async () => {
-          try {
-            const response = await axios.get(`http://localhost:5000/api/participants/${research._id}`);
-            setParticipants(response.data.totalParticipants);
-          } catch (error) {
-            console.error('Failed to fetch participants:', error);
-          }
-        };
-        fetchParticipants();
-      }, [research._id]);
-  
-      return (
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 50 }}
-          transition={{ duration: 0.5 }}
-        >
-          <StyledCard>
-            <CardHeader
-              title={research.title}
-              subheader={`Created on ${new Date(research.createdAt).toLocaleDateString()}`}
-              action={
-                <IconButton onClick={() => onViewRequests(research._id)} color="primary">
-                  <PeopleOutline />
-                </IconButton>
-              }
-            />
-            <CardContent>
-              <Typography variant="body2" color="text.secondary" gutterBottom>
-                {research.description}
-              </Typography>
-              <Box display="flex" justifyContent="space-between" alignItems="center" mt={2}>
-                <StyledChip
-                  icon={<PeopleOutline />}
-                  label={`${participants} Participants`}
-                  color="primary"
-                  variant="outlined"
-                />
-                <StyledChip
-                  icon={<Science />}
-                  label={`${research.trials.length} Trials`}
-                  color="secondary"
-                  variant="outlined"
-                />
-              </Box>
-              <Box mt={2}>
-                <Typography variant="caption" color="text.secondary">
-                  Progress
-                </Typography>
-                <LinearProgress
-                  variant="determinate"
-                  value={(participants / research.targetParticipants) * 100}
-                  sx={{ height: 10, borderRadius: 5 }}
-                />
-              </Box>
-            </CardContent>
-            <CardActions>
-              <Button startIcon={<Add />} onClick={() => onCreateTrial(research._id)} color="primary" variant="contained" fullWidth>
-                Create Trial
-              </Button>
-              <Button startIcon={<VisibilityOutlined />} onClick={() => onViewTrials(research._id)} color="secondary" variant="outlined" fullWidth>
-                View Trials
-              </Button>
-            </CardActions>
-          </StyledCard>
-        </motion.div>
-      );
+  },
+});
+
+const StyledCard = styled(Card)(({ theme }) => ({
+  transition: 'all 0.3s cubic-bezier(.25,.8,.25,1)',
+  '&:hover': {
+    boxShadow: '0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22)',
+    transform: 'translateY(-5px)',
+  },
+}));
+
+const StyledChip = styled(Chip)(({ theme }) => ({
+  margin: theme.spacing(0.5),
+  fontWeight: 600,
+}));
+
+const ResearchItem = ({ research, onCreateTrial, onViewTrials, onViewRequests }) => {
+  const [participants, setParticipants] = useState(0);
+
+  useEffect(() => {
+    const fetchParticipants = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/api/participant/participants/${research._id}`);
+        setParticipants(response.data.totalParticipants);
+      } catch (error) {
+        console.error('Failed to fetch participants:', error);
+      }
     };
+    fetchParticipants();
+  }, [research._id]);
+
+  
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 50 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 50 }}
+      transition={{ duration: 0.5 }}
+    >
+      <StyledCard>
+        <CardHeader
+          title={research.title}
+          subheader={`Created on ${new Date(research.createdAt).toLocaleDateString()}`}
+          action={
+            <IconButton onClick={() => onViewRequests(research._id)} color="primary">
+              <PeopleOutline />
+            </IconButton>
+          }
+        />
+        <CardContent>
+          <Typography variant="body2" color="text.secondary" gutterBottom>
+            {research.description}
+          </Typography>
+          <Box display="flex" justifyContent="space-between" alignItems="center" mt={2}>
+            <StyledChip
+              icon={<PeopleOutline />}
+              label={`${participants} Participants`}
+              color="primary"
+              variant="outlined"
+            />
+            <StyledChip
+              icon={<Science />}
+              label={`${research.trials.length} Trials`}
+              color="secondary"
+              variant="outlined"
+            />
+          </Box>
+          <Box mt={2}>
+            <Typography variant="caption" color="text.secondary">
+              Progress
+            </Typography>
+            <LinearProgress
+              variant="determinate"
+              value={(participants / research.targetParticipants) * 100}
+              sx={{ height: 10, borderRadius: 5 }}
+            />
+          </Box>
+        </CardContent>
+        <CardActions>
+          <Button startIcon={<Add />} onClick={() => onCreateTrial(research._id)} color="primary" variant="contained" fullWidth>
+            Create Trial
+          </Button>
+          <Button startIcon={<VisibilityOutlined />} onClick={() => onViewTrials(research._id)} color="secondary" variant="outlined" fullWidth>
+            View Trials
+          </Button>
+        </CardActions>
+      </StyledCard>
+    </motion.div>
+  );
+};
+
     
   const CreateTrialDialog = ({ open, onClose, onSubmit, researchId }) => {
     const [activeStep, setActiveStep] = useState(0);
@@ -426,6 +428,69 @@ const theme = createTheme({
     </Dialog>
   );
   
+const CommunicationDialog = ({ open, onClose, communicationData }) => {
+  const [messages, setMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState('');
+
+  useEffect(() => {
+    const fetchMessages = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/api/communication/${communicationData._id}`);
+        setMessages(response.data.messages);
+      } catch (error) {
+        console.error('Failed to fetch messages:', error);
+      }
+    };
+    if (communicationData) {
+      fetchMessages();
+    }
+  }, [communicationData]);
+
+  const handleSendMessage = async () => {
+    try {
+      await axios.post(`http://localhost:5000/api/communication/${communicationData._id}`, { text: newMessage });
+      setMessages([...messages, { text: newMessage, sender: 'Me' }]);
+      setNewMessage('');
+    } catch (error) {
+      console.error('Failed to send message:', error);
+    }
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+      <DialogTitle>Communication</DialogTitle>
+      <DialogContent>
+        <List>
+          {messages.map((message, index) => (
+            <ListItem key={index}>
+              <ListItemText primary={message.text} secondary={message.sender} />
+            </ListItem>
+          ))}
+        </List>
+        <TextField
+          label="New Message"
+          variant="outlined"
+          fullWidth
+          multiline
+          rows={3}
+          value={newMessage}
+          onChange={(e) => setNewMessage(e.target.value)}
+          margin="normal"
+        />
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={handleSendMessage} color="primary">
+          Send
+        </Button>
+        <Button onClick={onClose} color="secondary">
+          Close
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+
   const ManageResearchPage = () => {
     const [researches, setResearches] = useState([]);
     const [error, setError] = useState('');
@@ -462,7 +527,7 @@ const theme = createTheme({
   
     const handleViewTrials = async (researchId) => {
         try {
-          const response = await axios.get(`http://localhost:5000/api/trial/${researchId}`);
+          const response = await axios.get(`http://localhost:5000/api/trail/get/${researchId}`);
           setTrialsDialog({ open: true, trials: response.data });
         } catch (err) {
           setError('Failed to fetch trials');
