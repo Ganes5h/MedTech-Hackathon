@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Check, Users, Target, Cog, ChevronDown } from 'lucide-react';
-
+import Navbar from './Navbar';
 const FadeInWhenVisible = ({ children }) => {
   return (
     <motion.div
@@ -24,6 +24,7 @@ const LandingPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
       {/* Hero Section */}
+      <Navbar/>
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           <motion.div

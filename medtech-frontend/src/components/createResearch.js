@@ -25,14 +25,22 @@ const CreateResearchPage = () => {
     formData.append('description', description);
     mediaFiles.forEach((file) => formData.append('mediaFiles', file));
 
-    try {
-      const response = await axios.post('http://localhost:5000/api/research/', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+    const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user'));
 
-      if (response.status !== 200) {
+    try {
+      const response = await axios.post(
+        `http://localhost:5000/api/research/?userId=${user._id}`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status !== 201) {
         throw new Error('Failed to create research');
       }
 

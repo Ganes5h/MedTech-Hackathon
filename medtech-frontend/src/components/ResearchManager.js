@@ -1,332 +1,7 @@
-// import React, { useState, useEffect } from 'react';
-// import axios from 'axios';
-// import {
-//   Button, TextField, Select, MenuItem, Modal,
-//   List, ListItem, ListItemText, Typography, Paper, Grid, Box,
-//   AppBar, Toolbar, IconButton, Divider, Snackbar, Alert,
-//   Container, Card, CardContent, CardActions
-// } from '@mui/material';
-// import { styled } from '@mui/system';
-// import AddIcon from '@mui/icons-material/Add';
-// import CloseIcon from '@mui/icons-material/Close';
-
-// const StyledPaper = styled(Paper)(({ theme }) => ({
-//   padding: theme.spacing(3),
-//   marginBottom: theme.spacing(3),
-// }));
-
-// const StyledModal = styled(Modal)(({ theme }) => ({
-//   display: 'flex',
-//   alignItems: 'center',
-//   justifyContent: 'center',
-// }));
-
-// const ModalContent = styled(Paper)(({ theme }) => ({
-//   padding: theme.spacing(4),
-//   outline: 'none',
-//   maxWidth: 400,
-//   width: '100%',
-// }));
-
-// const ResearchManager = () => {
-//   const [research, setResearch] = useState(null);
-//   const [participants, setParticipants] = useState([]);
-//   const [participantRequests, setParticipantRequests] = useState([]);
-//   const [trials, setTrials] = useState([]);
-//   const [formData, setFormData] = useState({
-//     title: '',
-//     description: '',
-//     mediaPaths: [],
-//   });
-//   const [newParticipant, setNewParticipant] = useState('');
-//   const [modalOpen, setModalOpen] = useState(false);
-//   const [selectedResearch, setSelectedResearch] = useState('');
-//   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' });
-
-//   useEffect(() => {
-//     fetchResearches();
-//     fetchParticipants();
-//   }, []);
-
-//   const fetchResearches = async () => {
-//     try {
-//       const { data } = await axios.get('http://localhost:5000/api/research');
-//       setResearch(data);
-//     } catch (error) {
-//       console.error('Error fetching research:', error);
-//       showSnackbar('Error fetching research', 'error');
-//     }
-//   };
-
-//   const fetchParticipants = async () => {
-//     try {
-//       const { data } = await axios.get('/api/participant/participants');
-//       setParticipants(data);
-//     } catch (error) {
-//       console.error('Error fetching participants:', error);
-//       showSnackbar('Error fetching participants', 'error');
-//     }
-//   };
-
-//   const handleInputChange = (e) => {
-//     const { name, value } = e.target;
-//     setFormData((prevData) => ({
-//       ...prevData,
-//       [name]: value,
-//     }));
-//   };
-
-//   const handleAddParticipant = async () => {
-//     try {
-//       await axios.post('/api/research/addParticipant', { researchId: selectedResearch, participantId: newParticipant });
-//       fetchResearches();
-//       showSnackbar('Participant added successfully', 'success');
-//     } catch (error) {
-//       console.error('Error adding participant:', error);
-//       showSnackbar('Error adding participant', 'error');
-//     }
-//   };
-
-//   const handleRequest = async (researchId) => {
-//     try {
-//       await axios.post('/api/participants/request', { researchId });
-//       fetchResearches();
-//       showSnackbar('Request sent successfully', 'success');
-//     } catch (error) {
-//       console.error('Error requesting to join research:', error);
-//       showSnackbar('Error sending request', 'error');
-//     }
-//   };
-
-//   const handleAcceptRequest = async (participantId) => {
-//     try {
-//       await axios.post('/api/research/acceptRequest', { researchId: selectedResearch, participantId });
-//       fetchResearches();
-//       showSnackbar('Request accepted', 'success');
-//     } catch (error) {
-//       console.error('Error accepting participant request:', error);
-//       showSnackbar('Error accepting request', 'error');
-//     }
-//   };
-
-//   const handleRejectRequest = async (participantId) => {
-//     try {
-//       await axios.post('/api/research/rejectRequest', { researchId: selectedResearch, participantId });
-//       fetchResearches();
-//       showSnackbar('Request rejected', 'success');
-//     } catch (error) {
-//       console.error('Error rejecting participant request:', error);
-//       showSnackbar('Error rejecting request', 'error');
-//     }
-//   };
-
-//   const handleCreateTrial = async () => {
-//     try {
-//       await axios.post('/api/trials/create', { researchId: selectedResearch, description: formData.description });
-//       fetchTrials();
-//       setModalOpen(false);
-//       showSnackbar('Trial created successfully', 'success');
-//     } catch (error) {
-//       console.error('Error creating trial:', error);
-//       showSnackbar('Error creating trial', 'error');
-//     }
-//   };
-
-//   const fetchTrials = async () => {
-//     try {
-//       const { data } = await axios.get(`/api/trials?researchId=${selectedResearch}`);
-//       setTrials(data);
-//     } catch (error) {
-//       console.error('Error fetching trials:', error);
-//       showSnackbar('Error fetching trials', 'error');
-//     }
-//   };
-
-//   const handleSnackbarClose = (event, reason) => {
-//     if (reason === 'clickaway') return;
-//     setSnackbar({ ...snackbar, open: false });
-//   };
-
-//   const showSnackbar = (message, severity = 'info') => {
-//     setSnackbar({ open: true, message, severity });
-//   };
-
-//   return (
-//     <Box sx={{ flexGrow: 1 }}>
-//       <AppBar position="static">
-//         <Toolbar>
-//           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-//             Research Manager
-//           </Typography>
-//         </Toolbar>
-//       </AppBar>
-//       <Container maxWidth="lg" sx={{ mt: 4 }}>
-//         <Grid container spacing={3}>
-//           <Grid item xs={12} md={6}>
-//             <StyledPaper elevation={3}>
-//               <Typography variant="h5" gutterBottom>Create or Update Research</Typography>
-//               <TextField
-//                 fullWidth
-//                 label="Title"
-//                 name="title"
-//                 value={formData.title}
-//                 onChange={handleInputChange}
-//                 margin="normal"
-//               />
-//               <TextField
-//                 fullWidth
-//                 label="Description"
-//                 name="description"
-//                 value={formData.description}
-//                 onChange={handleInputChange}
-//                 multiline
-//                 rows={4}
-//                 margin="normal"
-//               />
-//               <Button
-//                 variant="contained"
-//                 color="primary"
-//                 startIcon={<AddIcon />}
-//                 onClick={handleCreateTrial}
-//                 sx={{ mt: 2 }}
-//               >
-//                 Create/Update Research
-//               </Button>
-//             </StyledPaper>
-//           </Grid>
-//           <Grid item xs={12} md={6}>
-//             <StyledPaper elevation={3}>
-//               <Typography variant="h5" gutterBottom>Add Participant</Typography>
-//               <Select
-//                 fullWidth
-//                 value={newParticipant}
-//                 onChange={(e) => setNewParticipant(e.target.value)}
-//                 margin="normal"
-//               >
-//                 {participants.map((participant) => (
-//                   <MenuItem key={participant._id} value={participant._id}>
-//                     {participant.name}
-//                   </MenuItem>
-//                 ))}
-//               </Select>
-//               <Button
-//                 variant="contained"
-//                 color="primary"
-//                 onClick={handleAddParticipant}
-//                 sx={{ mt: 2 }}
-//               >
-//                 Add Participant
-//               </Button>
-//             </StyledPaper>
-//           </Grid>
-//           <Grid item xs={12}>
-//             <StyledPaper elevation={3}>
-//               <Typography variant="h5" gutterBottom>Participant Requests</Typography>
-//               <List>
-//                 {participantRequests.map((request) => (
-//                   <ListItem key={request._id}>
-//                     <ListItemText primary={request.name} />
-//                     <Button
-//                       variant="outlined"
-//                       color="success"
-//                       onClick={() => handleAcceptRequest(request._id)}
-//                       sx={{ mr: 1 }}
-//                     >
-//                       Accept
-//                     </Button>
-//                     <Button
-//                       variant="outlined"
-//                       color="error"
-//                       onClick={() => handleRejectRequest(request._id)}
-//                     >
-//                       Reject
-//                     </Button>
-//                   </ListItem>
-//                 ))}
-//               </List>
-//             </StyledPaper>
-//           </Grid>
-//           <Grid item xs={12}>
-//             <StyledPaper elevation={3}>
-//               <Typography variant="h5" gutterBottom>Trials</Typography>
-//               <Button
-//                 variant="contained"
-//                 color="primary"
-//                 startIcon={<AddIcon />}
-//                 onClick={() => setModalOpen(true)}
-//                 sx={{ mb: 2 }}
-//               >
-//                 Create Trial
-//               </Button>
-//               <Grid container spacing={2}>
-//                 {trials.map((trial) => (
-//                   <Grid item xs={12} sm={6} md={4} key={trial._id}>
-//                     <Card>
-//                       <CardContent>
-//                         <Typography variant="h6" component="div">
-//                           Trial
-//                         </Typography>
-//                         <Typography variant="body2" color="text.secondary">
-//                           {trial.description}
-//                         </Typography>
-//                       </CardContent>
-//                       <CardActions>
-//                         <Button size="small">View Details</Button>
-//                       </CardActions>
-//                     </Card>
-//                   </Grid>
-//                 ))}
-//               </Grid>
-//             </StyledPaper>
-//           </Grid>
-//         </Grid>
-//       </Container>
-
-//       <StyledModal open={modalOpen} onClose={() => setModalOpen(false)}>
-//         <ModalContent>
-//           <Typography variant="h6" component="h2" gutterBottom>
-//             Create Trial
-//           </Typography>
-//           <TextField
-//             fullWidth
-//             label="Trial Description"
-//             name="description"
-//             value={formData.description}
-//             onChange={handleInputChange}
-//             multiline
-//             rows={4}
-//             margin="normal"
-//           />
-//           <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
-//             <Button onClick={() => setModalOpen(false)} sx={{ mr: 1 }}>
-//               Cancel
-//             </Button>
-//             <Button variant="contained" color="primary" onClick={handleCreateTrial}>
-//               Create Trial
-//             </Button>
-//           </Box>
-//         </ModalContent>
-//       </StyledModal>
-
-//       <Snackbar
-//         open={snackbar.open}
-//         autoHideDuration={6000}
-//         onClose={handleSnackbarClose}
-//         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-//       >
-//         <Alert onClose={handleSnackbarClose} severity={snackbar.severity} sx={{ width: '100%' }}>
-//           {snackbar.message}
-//         </Alert>
-//       </Snackbar>
-//     </Box>
-//   );
-// };
-
-// export default ResearchManager;
 
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
 import axios from 'axios';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 import {
   Typography,
   Button,
@@ -338,180 +13,502 @@ import {
   Alert,
   Container,
   Grid,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemSecondaryAction,
+  IconButton,
+  Chip,
+  Box,
+  Avatar,
+  LinearProgress,
+  Stepper,
+  Step,
+  StepLabel,
+  Paper,
 } from '@mui/material';
-import { CheckCircle, Cancel, Add, ArrowRight } from '@mui/icons-material';
+import { styled } from '@mui/material/styles';
+import {
+  Add,
+  VisibilityOutlined,
+  PeopleOutline,
+  Science,
+  CheckCircle,
+  Cancel,
+  ArrowForward,
+  ArrowBack,
+} from '@mui/icons-material';
+import { motion, AnimatePresence } from 'framer-motion';
 
-const ManageResearchPage = () => {
-  const { researchId } = useParams();
-  const [research, setResearch] = useState(null);
-  const [trials, setTrials] = useState([]);
-  const [participantRequests, setParticipantRequests] = useState([]);
-  const [newTrial, setNewTrial] = useState({ description: '' });
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
 
-  useEffect(() => {
-    fetchResearch();
-    fetchTrials();
-    fetchParticipantRequests();
-  }, [researchId]);
-
-  const fetchResearch = async () => {
-    try {
-      const response = await axios.get(`/api/research/${researchId}`);
-      setResearch(response.data);
-    } catch (err) {
-      setError('Failed to fetch research details');
-    }
-  };
-
-  const fetchTrials = async () => {
-    try {
-      const response = await axios.get(`/api/trials/research/${researchId}`);
-      setTrials(response.data);
-    } catch (err) {
-      setError('Failed to fetch trials');
-    }
-  };
-
-  const fetchParticipantRequests = async () => {
-    try {
-      const response = await axios.get(`http://localhost:5000/api/research/${researchId}/participant-requests`);
-      setParticipantRequests(response.data);
-    } catch (err) {
-      setError('Failed to fetch participant requests');
-    }
-  };
-
-  const handleCreateTrial = async (e) => {
-    e.preventDefault();
-    try {
-      await axios.post('/api/trials', { ...newTrial, researchId });
-      setSuccess('Trial created successfully');
-      setNewTrial({ description: '' });
-      fetchTrials();
-    } catch (err) {
-      setError('Failed to create trial');
-    }
-  };
-
-  const handleParticipantRequest = async (participantId, action) => {
-    try {
-      await axios.post(`/api/research/${researchId}/participant-request`, {
-        participantId,
-        action,
-      });
-      setSuccess(`Participant ${action}ed successfully`);
-      fetchParticipantRequests();
-      if (action === 'accept') fetchResearch();
-    } catch (err) {
-      setError(`Failed to ${action} participant`);
-    }
-  };
-
-  if (!research) return <Typography variant="h6">Loading...</Typography>;
-
-  return (
-    <Container maxWidth="md" sx={{ mt: 6 }}>
-      <Typography variant="h4" gutterBottom>
-        {research.title}
-      </Typography>
-      {error && (
-        <Alert severity="error" sx={{ mb: 4 }}>
-          {error}
-        </Alert>
-      )}
-      {success && (
-        <Alert severity="success" sx={{ mb: 4 }}>
-          {success}
-        </Alert>
-      )}
-
-      {/* Participant Requests Section */}
-      <section>
-        <Typography variant="h5" gutterBottom>
-          Participant Requests
-        </Typography>
-        {participantRequests.length === 0 ? (
-          <Typography>No pending participant requests.</Typography>
-        ) : (
-          <Grid container spacing={2}>
-            {participantRequests.map((request) => (
-              <Grid item xs={12} key={request.id}>
-                <Card>
-                  <CardHeader title={request.name} subheader={request.email} />
-                  <CardActions>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      startIcon={<CheckCircle />}
-                      onClick={() => handleParticipantRequest(request.id, 'accept')}
-                    >
-                      Accept
-                    </Button>
-                    <Button
-                      variant="outlined"
-                      color="secondary"
-                      startIcon={<Cancel />}
-                      onClick={() => handleParticipantRequest(request.id, 'reject')}
-                    >
-                      Reject
-                    </Button>
-                  </CardActions>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
-        )}
-      </section>
-
-      {/* Trials Section */}
-      <section style={{ marginTop: '2rem' }}>
-        <Typography variant="h5" gutterBottom>
-          Trials
-        </Typography>
-        {trials.length === 0 ? (
-          <Typography>No trials created yet.</Typography>
-        ) : (
-          <Grid container spacing={2}>
-            {trials.map((trial) => (
-              <Grid item xs={12} key={trial.id}>
-                <Card>
-                  <CardHeader title={trial.description} />
-                  <CardActions>
-                    <Button variant="outlined" endIcon={<ArrowRight />}>
-                      View Details
-                    </Button>
-                  </CardActions>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
-        )}
-      </section>
-
-      {/* Create New Trial Section */}
-      <section style={{ marginTop: '2rem' }}>
-        <Typography variant="h5" gutterBottom>
-          Create New Trial
-        </Typography>
-        <form onSubmit={handleCreateTrial}>
-          <TextField
-            label="Trial Description"
-            variant="outlined"
-            fullWidth
-            value={newTrial.description}
-            onChange={(e) => setNewTrial({ description: e.target.value })}
-            required
-            margin="normal"
+// Create a custom theme
+const theme = createTheme({
+    palette: {
+      primary: {
+        main: '#1976d2',
+      },
+      secondary: {
+        main: '#dc004e',
+      },
+      background: {
+        default: '#f5f5f5',
+      },
+    },
+    typography: {
+      fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+      h1: {
+        fontSize: '2.5rem',
+        fontWeight: 500,
+      },
+      h2: {
+        fontSize: '2rem',
+        fontWeight: 500,
+      },
+      h3: {
+        fontSize: '1.75rem',
+        fontWeight: 500,
+      },
+    },
+  });
+  
+  const StyledCard = styled(Card)(({ theme }) => ({
+    transition: 'all 0.3s cubic-bezier(.25,.8,.25,1)',
+    '&:hover': {
+      boxShadow: '0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22)',
+      transform: 'translateY(-5px)',
+    },
+  }));
+  
+  const StyledChip = styled(Chip)(({ theme }) => ({
+    margin: theme.spacing(0.5),
+  }));
+  
+  const ResearchItem = ({ research, onCreateTrial, onViewTrials, onViewRequests }) => {
+    const [participants, setParticipants] = useState(0);
+  
+    useEffect(() => {
+      const fetchParticipants = async () => {
+        try {
+          const response = await axios.get(`http://localhost:5000/api/participants/${research._id}`);
+          setParticipants(response.data.totalParticipants);
+        } catch (error) {
+          console.error('Failed to fetch participants:', error);
+        }
+      };
+      fetchParticipants();
+    }, [research._id]);
+  
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 50 }}
+        transition={{ duration: 0.5 }}
+      >
+        <StyledCard>
+          <CardHeader
+            title={research.title}
+            subheader={`Created on ${new Date(research.createdAt).toLocaleDateString()}`}
+            action={
+              <IconButton onClick={() => onViewRequests(research._id)}>
+                <PeopleOutline />
+              </IconButton>
+            }
           />
-          <Button type="submit" variant="contained" color="primary" startIcon={<Add />}>
-            Create Trial
+          <CardContent>
+            <Typography variant="body2" color="text.secondary" gutterBottom>
+              {research.description}
+            </Typography>
+            <Box display="flex" justifyContent="space-between" alignItems="center" mt={2}>
+              <StyledChip
+                icon={<PeopleOutline />}
+                label={`${participants} Participants`}
+                color="primary"
+                variant="outlined"
+              />
+              <StyledChip
+                icon={<Science />}
+                label={`${research.trials.length} Trials`}
+                color="secondary"
+                variant="outlined"
+              />
+            </Box>
+            <Box mt={2}>
+              <Typography variant="caption" color="text.secondary">
+                Progress
+              </Typography>
+              <LinearProgress
+                variant="determinate"
+                value={(participants / research.targetParticipants) * 100}
+                sx={{ height: 10, borderRadius: 5 }}
+              />
+            </Box>
+          </CardContent>
+          <CardActions>
+            <Button startIcon={<Add />} onClick={() => onCreateTrial(research._id)} color="primary" variant="contained">
+              Create Trial
+            </Button>
+            <Button startIcon={<VisibilityOutlined />} onClick={() => onViewTrials(research._id)} color="secondary">
+              View Trials
+            </Button>
+          </CardActions>
+        </StyledCard>
+      </motion.div>
+    );
+  };
+  
+  const CreateTrialDialog = ({ open, onClose, onSubmit, researchId }) => {
+    const [activeStep, setActiveStep] = useState(0);
+    const [trialData, setTrialData] = useState({
+      description: '',
+      stages: [{ title: '', description: '' }],
+    });
+  
+    const handleNext = () => {
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    };
+  
+    const handleBack = () => {
+      setActiveStep((prevActiveStep) => prevActiveStep - 1);
+    };
+  
+    const handleSubmit = () => {
+      onSubmit(researchId, trialData);
+      setTrialData({
+        description: '',
+        stages: [{ title: '', description: '' }],
+      });
+      setActiveStep(0);
+    };
+  
+    const handleAddStage = () => {
+      setTrialData((prevData) => ({
+        ...prevData,
+        stages: [...prevData.stages, { title: '', description: '' }],
+      }));
+    };
+  
+    const handleStageChange = (index, field, value) => {
+      setTrialData((prevData) => {
+        const newStages = [...prevData.stages];
+        newStages[index] = { ...newStages[index], [field]: value };
+        return { ...prevData, stages: newStages };
+      });
+    };
+  
+    const steps = ['Trial Description', 'Trial Stages', 'Review'];
+  
+    return (
+      <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth TransitionComponent={motion.div}>
+        <DialogTitle>Create New Trial</DialogTitle>
+        <DialogContent>
+          <Stepper activeStep={activeStep} alternativeLabel sx={{ mb: 4 }}>
+            {steps.map((label) => (
+              <Step key={label}>
+                <StepLabel>{label}</StepLabel>
+              </Step>
+            ))}
+          </Stepper>
+          {activeStep === 0 && (
+            <TextField
+              label="Trial Description"
+              variant="outlined"
+              fullWidth
+              multiline
+              rows={4}
+              value={trialData.description}
+              onChange={(e) => setTrialData({ ...trialData, description: e.target.value })}
+              required
+              margin="normal"
+            />
+          )}
+          {activeStep === 1 && (
+            <>
+              {trialData.stages.map((stage, index) => (
+                <Paper key={index} elevation={3} sx={{ p: 2, mb: 2 }}>
+                  <Typography variant="h6" gutterBottom>
+                    Stage {index + 1}
+                  </Typography>
+                  <TextField
+                    label="Stage Title"
+                    variant="outlined"
+                    fullWidth
+                    value={stage.title}
+                    onChange={(e) => handleStageChange(index, 'title', e.target.value)}
+                    required
+                    margin="normal"
+                  />
+                  <TextField
+                    label="Stage Description"
+                    variant="outlined"
+                    fullWidth
+                    multiline
+                    rows={3}
+                    value={stage.description}
+                    onChange={(e) => handleStageChange(index, 'description', e.target.value)}
+                    margin="normal"
+                  />
+                </Paper>
+              ))}
+              <Button onClick={handleAddStage} startIcon={<Add />} variant="outlined" sx={{ mt: 2 }}>
+                Add Stage
+              </Button>
+            </>
+          )}
+          {activeStep === 2 && (
+            <Box>
+              <Typography variant="h6" gutterBottom>
+                Trial Summary
+              </Typography>
+              <Typography variant="body1" gutterBottom>
+                Description: {trialData.description}
+              </Typography>
+              <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
+                Stages:
+              </Typography>
+              {trialData.stages.map((stage, index) => (
+                <Paper key={index} elevation={3} sx={{ p: 2, mb: 2 }}>
+                  <Typography variant="subtitle1" gutterBottom>
+                    Stage {index + 1}: {stage.title}
+                  </Typography>
+                  <Typography variant="body2">{stage.description}</Typography>
+                </Paper>
+              ))}
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={onClose} color="secondary">
+            Cancel
           </Button>
-        </form>
-      </section>
-    </Container>
+          {activeStep > 0 && (
+            <Button onClick={handleBack} startIcon={<ArrowBack />}>
+              Back
+            </Button>
+          )}
+          {activeStep < steps.length - 1 ? (
+            <Button onClick={handleNext} variant="contained" color="primary" endIcon={<ArrowForward />}>
+              Next
+            </Button>
+          ) : (
+            <Button onClick={handleSubmit} variant="contained" color="primary">
+              Create Trial
+            </Button>
+          )}
+        </DialogActions>
+      </Dialog>
+    );
+  };
+  
+  const TrialsDialog = ({ open, onClose, trials }) => (
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth TransitionComponent={motion.div}>
+      <DialogTitle>Trials</DialogTitle>
+      <DialogContent>
+        <List>
+          <AnimatePresence>
+            {trials.map((trial) => (
+              <motion.div
+                key={trial._id}
+                initial={{ opacity: 0, x: -50 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 50 }}
+                transition={{ duration: 0.3 }}
+              >
+                <Paper elevation={3} sx={{ mb: 2, p: 2 }}>
+                  <Typography variant="h6" gutterBottom>
+                    {trial.description}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    Created on {new Date(trial.createdAt).toLocaleDateString()}
+                  </Typography>
+                  <Box mt={2}>
+                    <Typography variant="subtitle1" gutterBottom>
+                      Stages:
+                    </Typography>
+                    {trial.stages.map((stage, index) => (
+                      <Box key={index} mb={1}>
+                        <Typography variant="subtitle2">{stage.title}</Typography>
+                        <Typography variant="body2">{stage.description}</Typography>
+                      </Box>
+                    ))}
+                  </Box>
+                </Paper>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </List>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose} color="primary">
+          Close
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
-};
-
+  
+  const ParticipantRequestsDialog = ({ open, onClose, requests, onAccept, onReject }) => (
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth TransitionComponent={motion.div}>
+      <DialogTitle>Participant Requests</DialogTitle>
+      <DialogContent>
+        <List>
+          <AnimatePresence>
+            {requests.map((request) => (
+              <motion.div
+                key={request._id}
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <ListItem>
+                  <ListItemText
+                    primary={request.name}
+                    secondary={
+                      <>
+                        <Typography component="span" variant="body2" color="text.primary">
+                          {request.email}
+                        </Typography>
+                        {` — ${request.reason}`}
+                      </>
+                    }
+                  />
+                  <ListItemSecondaryAction>
+                    <IconButton edge="end" aria-label="accept" onClick={() => onAccept(request._id)} color="success">
+                      <CheckCircle />
+                    </IconButton>
+                    <IconButton edge="end" aria-label="reject" onClick={() => onReject(request._id)} color="error">
+                      <Cancel />
+                    </IconButton>
+                  </ListItemSecondaryAction>
+                </ListItem>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </List>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose} color="primary">
+          Close
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+  
+  const ManageResearchPage = () => {
+    const [researches, setResearches] = useState([]);
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
+    const [createTrialDialog, setCreateTrialDialog] = useState({ open: false, researchId: null });
+    const [trialsDialog, setTrialsDialog] = useState({ open: false, trials: [] });
+    const [requestsDialog, setRequestsDialog] = useState({ open: false, requests: [] });
+  
+    useEffect(() => {
+      fetchResearches();
+    }, []);
+  
+    const fetchResearches = async () => {
+      try {
+        const user = JSON.parse(localStorage.getItem('user'));
+        const userId = user._id;
+        const response = await axios.get(`http://localhost:5000/api/research/researcher/${userId}`);
+        setResearches(response.data);
+      } catch (err) {
+        setError('Failed to fetch researches');
+      }
+    };
+  
+    const handleCreateTrial = async (researchId, trialData) => {
+      try {
+        await axios.post('http://localhost:5000/api/trial/', { ...trialData, researchId });
+        setSuccess('Trial created successfully');
+        setCreateTrialDialog({ open: false, researchId: null });
+        fetchResearches();
+      } catch (err) {
+        setError('Failed to create trial');
+      }
+    };
+  
+    const handleViewTrials = async (researchId) => {
+        try {
+          const response = await axios.get(`http://localhost:5000/api/trial/${researchId}`);
+          setTrialsDialog({ open: true, trials: response.data });
+        } catch (err) {
+          setError('Failed to fetch trials');
+        }
+      };
+      
+  
+    const handleViewRequests = (researchId) => {
+      const research = researches.find((r) => r._id === researchId);
+      setRequestsDialog({ open: true, requests: research.participantRequests });
+    };
+  
+    const handleParticipantRequest = async (requestId, action) => {
+      try {
+        await axios.put(`http://localhost:5000/api/participant-request/${requestId}`, { status: action });
+        setSuccess(`Participant request ${action === 'accepted' ? 'accepted' : 'rejected'} successfully`);
+        fetchResearches();
+        setRequestsDialog((prev) => ({
+          ...prev,
+          requests: prev.requests.filter((request) => request._id !== requestId),
+        }));
+      } catch (err) {
+        setError(`Failed to ${action} participant request`);
+      }
+    };
+  
+    return (
+      <ThemeProvider theme={theme}>
+        <Container maxWidth="lg">
+          <Typography variant="h1" component="h1" gutterBottom>
+            Manage Research
+          </Typography>
+          {error && (
+            <Alert severity="error" onClose={() => setError('')}>
+              {error}
+            </Alert>
+          )}
+          {success && (
+            <Alert severity="success" onClose={() => setSuccess('')}>
+              {success}
+            </Alert>
+          )}
+          <Grid container spacing={3}>
+            {researches.map((research) => (
+              <Grid item xs={12} sm={6} md={4} key={research._id}>
+                <ResearchItem
+                  research={research}
+                  onCreateTrial={() => setCreateTrialDialog({ open: true, researchId: research._id })}
+                  onViewTrials={handleViewTrials}
+                  onViewRequests={handleViewRequests}
+                />
+              </Grid>
+            ))}
+          </Grid>
+          <CreateTrialDialog
+            open={createTrialDialog.open}
+            onClose={() => setCreateTrialDialog({ open: false, researchId: null })}
+            onSubmit={handleCreateTrial}
+            researchId={createTrialDialog.researchId}
+          />
+          <TrialsDialog
+            open={trialsDialog.open}
+            onClose={() => setTrialsDialog({ open: false, trials: [] })}
+            trials={trialsDialog.trials}
+          />
+          <ParticipantRequestsDialog
+            open={requestsDialog.open}
+            onClose={() => setRequestsDialog({ open: false, requests: [] })}
+            requests={requestsDialog.requests}
+            onAccept={(requestId) => handleParticipantRequest(requestId, 'accepted')}
+            onReject={(requestId) => handleParticipantRequest(requestId, 'rejected')}
+          />
+        </Container>
+      </ThemeProvider>
+    );
+  };
 export default ManageResearchPage;

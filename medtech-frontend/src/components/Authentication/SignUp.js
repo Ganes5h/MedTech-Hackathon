@@ -58,7 +58,7 @@ const RegistrationFormComponent = () => {
       return;
     }
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/register', formData);
+      const res = await axios.post('http://localhost:5000/api/auth/signup', formData);
       console.log('Registration successful', res.data);
       setOpenSnackbar(true);
       // Handle successful registration (e.g., store token, redirect)

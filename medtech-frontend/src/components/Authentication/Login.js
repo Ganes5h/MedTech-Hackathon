@@ -12,16 +12,15 @@ import {
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 const theme = createTheme();
 
 const LoginComponent = () => {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  });
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [openSnackbar, setOpenSnackbar] = useState(false);
+  const navigate = useNavigate();
 
   const { email, password } = formData;
 
@@ -31,9 +30,11 @@ const LoginComponent = () => {
     e.preventDefault();
     try {
       const res = await axios.post('http://localhost:5000/api/auth/login', formData);
-      console.log('Login successful', res.data);
+      // Store token and user in localStorage
+      localStorage.setItem('token', res.data.token);
+      localStorage.setItem('user', JSON.stringify(res.data.user));
       setOpenSnackbar(true);
-      // Handle successful login (e.g., store token, redirect)
+      setTimeout(() => navigate('/dashboard'), 2000);
     } catch (err) {
       console.error('Login error', err.response.data);
       setError(err.response.data.msg || 'Invalid credentials');
