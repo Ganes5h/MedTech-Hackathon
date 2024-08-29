@@ -7,12 +7,12 @@ const { createResearch, getResearchById, getResearchesByResearcher, updateResear
 // Middleware for authentication
 const auth = require('../middlewares/auth');
 
-router.post('/', auth, createResearch);
+router.post('/', createResearch);
 router.get('/:id', getResearchById);
-router.get('/researcher', auth, getResearchesByResearcher);
-router.put('/:id', auth, updateResearch);
-router.delete('/:id', auth, deleteResearch);
-router.post('/participant', auth, addParticipantToResearch);
-router.delete('/participant', auth, removeParticipantFromResearch);
+router.get('/researcher/:id', getResearchesByResearcher);
+router.put('/:id', updateResearch);
+router.delete('/:id', deleteResearch);
+router.post('/participant', addParticipantToResearch);
+router.delete('/participant', removeParticipantFromResearch);
 
 module.exports = router;

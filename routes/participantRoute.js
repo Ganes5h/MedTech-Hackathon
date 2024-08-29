@@ -1,13 +1,13 @@
 // routes/participantRoutes.js
 const express = require('express');
 const router = express.Router();
-const { requestToJoinResearch, acceptParticipantRequest, rejectParticipantRequest } = require('../controllers/participantController');
+const { requestToJoinResearch, handleParticipantRequest,getNumberOfParticipantRequests,getNumberOfParticipant  } = require('../controllers/participantController');
 
 // Middleware for authentication
 const auth = require('../middlewares/auth');
 
-router.post('/request', auth, requestToJoinResearch);
-router.post('/accept', auth, acceptParticipantRequest);
-router.post('/reject', auth, rejectParticipantRequest);
-
+router.post('/request', requestToJoinResearch);
+router.post('/handle',handleParticipantRequest)
+router.get('/:researchId/participant-requests', getNumberOfParticipantRequests);
+router.get('/participants/:id')
 module.exports = router;

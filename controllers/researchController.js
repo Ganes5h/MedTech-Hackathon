@@ -2,27 +2,39 @@
 const Research = require('../models/ResearchModel');
 const User = require('../models/userModel');
 const { validationResult } = require('express-validator');
-
+const upload = require('../middlewares/upload')
 // Create Research
-exports.createResearch = async (req, res) => {
-  const { title, description, mediaPaths } = req.body;
-  const researcherId = req.user.id;  // Assume `req.user` is set by authentication middleware
-
-  try {
-    const research = new Research({
-      title,
-      description,
-      mediaPaths,
-      createdBy: researcherId
-    });
-
-    await research.save();
-    res.status(201).json(research);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
-  }
-};
+exports.createResearch = [
+    upload.array('mediaFiles', 5), // Max 5 files can be uploaded at once
+    async (req, res) => {
+      const { title, description } = req.body;
+      const researcherId = req.query.userId;
+  
+      // Check if required fields are provided
+      if (!title) {
+        return res.status(400).json({ error: "Title is required" });
+      }
+  
+      // Get file paths from multer's file handling
+      const mediaPaths = req.files.map(file => file.path);
+  
+      try {
+        // Create a new research entry with mediaPaths
+        const research = new Research({
+          title,
+          description,
+          mediaPaths, // Store the file paths in the database
+          createdBy: researcherId,
+        });
+  
+        await research.save();
+        res.status(201).json(research);
+      } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+      }
+    }
+  ];
 
 // Get Research by ID
 exports.getResearchById = async (req, res) => {
@@ -41,7 +53,8 @@ exports.getResearchById = async (req, res) => {
 // Get All Researches by Researcher
 exports.getResearchesByResearcher = async (req, res) => {
   try {
-    const researches = await Research.find({ createdBy: req.user.id });
+    const id = req.params.id
+    const researches = await Research.find({ createdBy:id });
     res.json(researches);
   } catch (err) {
     console.error(err.message);

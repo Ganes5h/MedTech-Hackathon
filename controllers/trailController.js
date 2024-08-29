@@ -125,6 +125,9 @@ exports.addCommunicationToTrial = async (req, res) => {
 exports.getTrialsByResearch = async (req, res) => {
   try {
     const trials = await Trial.find({ research: req.params.researchId }).populate('createdBy', 'name email');
+    if(!trials){
+        res.status(400).json("Trails Not Found")
+    }
     res.json(trials);
   } catch (err) {
     console.error(err.message);

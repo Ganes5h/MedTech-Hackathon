@@ -5,12 +5,12 @@ const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator');
 const path = require('path');
 const fs = require('fs');
-
+require('dotenv').config();
 // Generate JWT token
 const generateToken = (user) => {
   return jwt.sign(
     { id: user._id, role: user.role },
-    process.env.JWT_SECRET,
+    "Niraj@1234",
     { expiresIn: '1h' }
   );
 };
@@ -60,7 +60,7 @@ exports.login = async (req, res) => {
     }
 
     const token = generateToken(user);
-    res.json({ token });
+    res.json({ token,user });
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
@@ -108,4 +108,19 @@ exports.getUserById = async (req, res) => {
     console.error(err.message);
     res.status(500).send('Server Error');
   }
+};
+
+
+exports.getParticipants = async (req, res) => {
+    try {
+        console.log("Querying participants...");
+        const users = await User.find({ role: 'participant' });
+        if (!users || users.length === 0) {
+            return res.status(400).json("Participants not found");
+        }
+        res.status(200).json(users);
+    } catch (err) {
+        console.error("Error occurred:", err);
+        res.status(500).json("Server Error");
+    }
 };
