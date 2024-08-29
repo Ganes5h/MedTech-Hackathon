@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import {
-  TextField, Button, List, Typography, Box, CircularProgress,
-  Container, Grid, Paper, Chip, AppBar, Toolbar,
-  CssBaseline, useScrollTrigger, Fab, Zoom
+  Button, Typography, Box, CircularProgress, Container, Grid, Paper, Chip, AppBar, Toolbar,
+  CssBaseline, useScrollTrigger, Fab, Zoom, Dialog, DialogTitle, DialogContent, DialogActions,
+  TextField, IconButton, List, ListItem, ListItemText, ListItemSecondaryAction
 } from '@mui/material';
 import { ThemeProvider, createTheme, styled } from '@mui/material/styles';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -11,32 +11,19 @@ import AddIcon from '@mui/icons-material/Add';
 import ScienceIcon from '@mui/icons-material/Science';
 import ChatIcon from '@mui/icons-material/Chat';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import CloseIcon from '@mui/icons-material/Close';
 
-const containerVariants = {
-    hidden: { opacity: 0, scale: 0.9 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      transition: {
-        staggerChildren: 0.2, 
-      },
-    },
-  };
-  
-  const itemVariants = {
-    hidden: { opacity: 0, y: 50 },
-    visible: { opacity: 1, y: 0 },
-  };
-  
-
-// Custom theme
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#2196f3',
+      main: '#6200ea',
+      light: '#9d46ff',
+      dark: '#0a00b6',
     },
     secondary: {
-      main: '#ff4081',
+      main: '#00bfa5',
+      light: '#5df2d6',
+      dark: '#008e76',
     },
     background: {
       default: '#f5f5f5',
@@ -44,12 +31,18 @@ const theme = createTheme({
     },
   },
   typography: {
-    fontFamily: 'Roboto, Arial, sans-serif',
-    h3: {
+    fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif',
+    h2: {
       fontWeight: 700,
+      fontSize: '2.5rem',
+      color: '#6200ea',
     },
     h5: {
       fontWeight: 600,
+      fontSize: '1.5rem',
+    },
+    body1: {
+      fontSize: '1rem',
     },
   },
   components: {
@@ -57,31 +50,35 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 8,
+          textTransform: 'none',
+          fontWeight: 600,
         },
       },
     },
     MuiPaper: {
       styleOverrides: {
         root: {
-          borderRadius: 12,
+          borderRadius: 16,
+        },
+      },
+    },
+    MuiChip: {
+      styleOverrides: {
+        root: {
+          borderRadius: 16,
         },
       },
     },
   },
 });
 
-// Styled components
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
-  transition: 'all 0.3s ease-in-out',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
   '&:hover': {
     transform: 'translateY(-5px)',
-    boxShadow: theme.shadows[8],
+    boxShadow: '0 12px 20px rgba(98, 0, 234, 0.2)',
   },
-}));
-
-const AnimatedListItem = styled(motion.div)(({ theme }) => ({
-  marginBottom: theme.spacing(2),
 }));
 
 const StyledFab = styled(Fab)(({ theme }) => ({
@@ -90,7 +87,28 @@ const StyledFab = styled(Fab)(({ theme }) => ({
   right: theme.spacing(2),
 }));
 
-// Scroll to top component
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: { 
+    y: 0, 
+    opacity: 1,
+    transition: {
+      type: 'spring',
+      stiffness: 100,
+    }
+  },
+};
+
 function ScrollTop(props) {
   const { children } = props;
   const trigger = useScrollTrigger({
@@ -115,16 +133,20 @@ function ScrollTop(props) {
 }
 
 const ParticipantTrials = () => {
-  const [researchList, setResearchList] = useState([]);
-  const [selectedResearch, setSelectedResearch] = useState('');
-  const [trials, setTrials] = useState([]);
+  const [researches, setResearches] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [createTrialDialog, setCreateTrialDialog] = useState({ open: false, researchId: null });
+  const [newTrialDescription, setNewTrialDescription] = useState('');
+  const [communicationDialog, setCommunicationDialog] = useState({ open: false, trialId: null });
 
   useEffect(() => {
-    const fetchResearchList = async () => {
+    const fetchResearches = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/research/researcher');
-        setResearchList(res.data);
+        const user = JSON.parse(localStorage.getItem('user'));
+        const participantId = user._id;
+        // Replace with actual participant ID
+        const res = await axios.get(`http://localhost:5000/api/research/get-participant/${participantId}`);
+        setResearches(res.data);
         setLoading(false);
       } catch (err) {
         console.error(err);
@@ -132,23 +154,26 @@ const ParticipantTrials = () => {
       }
     };
 
-    fetchResearchList();
+    fetchResearches();
   }, []);
 
-  useEffect(() => {
-    if (selectedResearch) {
-      const fetchTrials = async () => {
-        try {
-          const res = await axios.get(`http://localhost:5000/api/trail/research/${selectedResearch}`);
-          setTrials(res.data);
-        } catch (err) {
-          console.error(err);
-        }
-      };
-
-      fetchTrials();
+  const handleCreateTrial = async () => {
+    try {
+      const res = await axios.post('http://localhost:5000/api/trial', {
+        researchId: createTrialDialog.researchId,
+        description: newTrialDescription,
+      });
+      setResearches(researches.map(research => 
+        research._id === createTrialDialog.researchId 
+          ? { ...research, trials: [...research.trials, res.data] }
+          : research
+      ));
+      setCreateTrialDialog({ open: false, researchId: null });
+      setNewTrialDescription('');
+    } catch (err) {
+      console.error(err);
     }
-  }, [selectedResearch]);
+  };
 
   if (loading) return (
     <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
@@ -159,76 +184,139 @@ const ParticipantTrials = () => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <AppBar position="static">
+      <AppBar position="static" color="primary">
         <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Participant Trials Management
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontWeight: 600 }}>
+            Participant Research Hub
           </Typography>
         </Toolbar>
       </AppBar>
       <Toolbar id="back-to-top-anchor" />
       <Container maxWidth="lg">
         <Box py={4}>
-          <Typography variant="h3" gutterBottom component={motion.h3}
+          <motion.div
             initial={{ opacity: 0, y: -50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            Manage Trials
-          </Typography>
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={6}>
-              <StyledPaper elevation={3}>
-                <Typography variant="h5" gutterBottom>Select Research</Typography>
-                <TextField
-                  select
-                  fullWidth
-                  label="Select Research"
-                  value={selectedResearch}
-                  onChange={(e) => setSelectedResearch(e.target.value)}
-                  SelectProps={{ native: true }}
-                  margin="normal"
-                >
-                  <option value="">Select Research</option>
-                  {researchList.map((research) => (
-                    <option key={research._id} value={research._id}>
-                      {research.title}
-                    </option>
-                  ))}
-                </TextField>
-              </StyledPaper>
+            <Typography variant="h2" gutterBottom align="center">
+              Your Research Projects
+            </Typography>
+          </motion.div>
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            <Grid container spacing={3}>
+              {researches.map((research) => (
+                <Grid item xs={12} md={6} key={research._id} component={motion.div} variants={itemVariants}>
+                  <StyledPaper elevation={3}>
+                    <Typography variant="h5" gutterBottom>{research.title}</Typography>
+                    <Typography variant="body1" paragraph>{research.description}</Typography>
+                    <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+                      <Chip
+                        icon={<ScienceIcon />}
+                        label={`${research.trials ? research.trials.length : 0} Trials`}
+                        color="primary"
+                      />
+                      <Button
+                        variant="contained"
+                        color="secondary"
+                        startIcon={<AddIcon />}
+                        onClick={() => setCreateTrialDialog({ open: true, researchId: research._id })}
+                      >
+                        Create Trial
+                      </Button>
+                    </Box>
+                    {research.trials && research.trials.length > 0 && (
+                      <List>
+                        {research.trials.map((trial) => (
+                          <ListItem key={trial._id} disablePadding>
+                            <ListItemText primary={trial.description} />
+                            <ListItemSecondaryAction>
+                              <IconButton edge="end" aria-label="communicate" onClick={() => setCommunicationDialog({ open: true, trialId: trial._id })}>
+                                <ChatIcon />
+                              </IconButton>
+                            </ListItemSecondaryAction>
+                          </ListItem>
+                        ))}
+                      </List>
+                    )}
+                  </StyledPaper>
+                </Grid>
+              ))}
             </Grid>
-          </Grid>
-
-          <AnimatePresence>
-            {trials.length > 0 && (
-              <motion.div
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-              >
-                <List>
-                  {trials.map((trial) => (
-                    <AnimatedListItem key={trial._id} variants={itemVariants}>
-                      <StyledPaper elevation={3}>
-                        <Typography variant="h5">{trial.description}</Typography>
-                        <Chip
-                          icon={<ScienceIcon />}
-                          label={`${trial.stages.length} Stages`}
-                          color="primary"
-                          sx={{ mt: 1 }}
-                        />
-                      </StyledPaper>
-                    </AnimatedListItem>
-                  ))}
-                </List>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          </motion.div>
         </Box>
       </Container>
+
+      <Dialog 
+        open={createTrialDialog.open} 
+        onClose={() => setCreateTrialDialog({ open: false, researchId: null })}
+        PaperProps={{
+          style: {
+            borderRadius: 16,
+          },
+        }}
+      >
+        <DialogTitle>Create New Trial</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Trial Description"
+            type="text"
+            fullWidth
+            value={newTrialDescription}
+            onChange={(e) => setNewTrialDescription(e.target.value)}
+            variant="outlined"
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setCreateTrialDialog({ open: false, researchId: null })} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleCreateTrial} color="primary" variant="contained">
+            Create
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog 
+        open={communicationDialog.open} 
+        onClose={() => setCommunicationDialog({ open: false, trialId: null })}
+        fullWidth 
+        maxWidth="sm"
+        PaperProps={{
+          style: {
+            borderRadius: 16,
+          },
+        }}
+      >
+        <DialogTitle>
+          Communication for Trial
+          <IconButton
+            aria-label="close"
+            onClick={() => setCommunicationDialog({ open: false, trialId: null })}
+            sx={{
+              position: 'absolute',
+              right: 8,
+              top: 8,
+              color: (theme) => theme.palette.grey[500],
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent>
+          {/* Add communication component here */}
+          <Typography>Communication features for the trial will be implemented here.</Typography>
+        </DialogContent>
+      </Dialog>
+
       <ScrollTop>
-        <StyledFab color="primary" size="small" aria-label="scroll back to top">
+        <StyledFab color="secondary" size="small" aria-label="scroll back to top">
           <KeyboardArrowUpIcon />
         </StyledFab>
       </ScrollTop>
