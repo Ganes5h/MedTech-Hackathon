@@ -33,11 +33,24 @@ const LoginComponent = () => {
       // Store token and user in localStorage
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('user', JSON.stringify(res.data.user));
+      
+      const userRole = res.data.user.role; // Assuming 'role' is provided in the response
+      
       setOpenSnackbar(true);
-      setTimeout(() => navigate('/dashboard'), 2000);
+
+      // Redirect based on the user role
+      setTimeout(() => {
+        if (userRole === 'researcher') {
+          navigate('/research');
+        } else if (userRole === 'participant') {
+          navigate('/research-studies');
+        } else {
+          navigate('/research-studies'); // Default route if role doesn't match
+        }
+      }, 2000);
     } catch (err) {
-      console.error('Login error', err.response.data);
-      setError(err.response.data.msg || 'Invalid credentials');
+      console.error('Login error', err.response?.data || err.message);
+      setError(err.response?.data?.msg || 'Invalid credentials');
     }
   };
 
