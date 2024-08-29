@@ -138,13 +138,13 @@ const ParticipantTrials = () => {
   const [createTrialDialog, setCreateTrialDialog] = useState({ open: false, researchId: null });
   const [newTrialDescription, setNewTrialDescription] = useState('');
   const [communicationDialog, setCommunicationDialog] = useState({ open: false, trialId: null });
+  const [message, setMessage] = useState('');
 
   useEffect(() => {
     const fetchResearches = async () => {
       try {
         const user = JSON.parse(localStorage.getItem('user'));
         const participantId = user._id;
-        // Replace with actual participant ID
         const res = await axios.get(`http://localhost:5000/api/research/get-participant/${participantId}`);
         setResearches(res.data);
         setLoading(false);
@@ -159,9 +159,12 @@ const ParticipantTrials = () => {
 
   const handleCreateTrial = async () => {
     try {
-      const res = await axios.post('http://localhost:5000/api/trial', {
+        const user = JSON.parse(localStorage.getItem('user'));
+        const userID = user._id;
+      const res = await axios.post('http://localhost:5000/api/trail', {
         researchId: createTrialDialog.researchId,
         description: newTrialDescription,
+        userId:userID
       });
       setResearches(researches.map(research => 
         research._id === createTrialDialog.researchId 
@@ -170,6 +173,22 @@ const ParticipantTrials = () => {
       ));
       setCreateTrialDialog({ open: false, researchId: null });
       setNewTrialDescription('');
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleSendMessage = async () => {
+    try {
+      const user = JSON.parse(localStorage.getItem('user'));
+      const participantId = user._id;
+      await axios.post('http://localhost:5000/api/trail/communication', {
+        trialId: communicationDialog.trialId,
+        participantId,
+        message,
+      });
+      setCommunicationDialog({ open: false, trialId: null });
+      setMessage('');
     } catch (err) {
       console.error(err);
     }
@@ -254,11 +273,6 @@ const ParticipantTrials = () => {
       <Dialog 
         open={createTrialDialog.open} 
         onClose={() => setCreateTrialDialog({ open: false, researchId: null })}
-        PaperProps={{
-          style: {
-            borderRadius: 16,
-          },
-        }}
       >
         <DialogTitle>Create New Trial</DialogTitle>
         <DialogContent>
@@ -268,16 +282,16 @@ const ParticipantTrials = () => {
             label="Trial Description"
             type="text"
             fullWidth
+            variant="outlined"
             value={newTrialDescription}
             onChange={(e) => setNewTrialDescription(e.target.value)}
-            variant="outlined"
           />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setCreateTrialDialog({ open: false, researchId: null })} color="primary">
             Cancel
           </Button>
-          <Button onClick={handleCreateTrial} color="primary" variant="contained">
+          <Button onClick={handleCreateTrial} color="primary">
             Create
           </Button>
         </DialogActions>
@@ -286,39 +300,36 @@ const ParticipantTrials = () => {
       <Dialog 
         open={communicationDialog.open} 
         onClose={() => setCommunicationDialog({ open: false, trialId: null })}
-        fullWidth 
-        maxWidth="sm"
-        PaperProps={{
-          style: {
-            borderRadius: 16,
-          },
-        }}
       >
-        <DialogTitle>
-          Communication for Trial
-          <IconButton
-            aria-label="close"
-            onClick={() => setCommunicationDialog({ open: false, trialId: null })}
-            sx={{
-              position: 'absolute',
-              right: 8,
-              top: 8,
-              color: (theme) => theme.palette.grey[500],
-            }}
-          >
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
+        <DialogTitle>Send Message</DialogTitle>
         <DialogContent>
-          {/* Add communication component here */}
-          <Typography>Communication features for the trial will be implemented here.</Typography>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Message"
+            type="text"
+            fullWidth
+            variant="outlined"
+            multiline
+            rows={4}
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+          />
         </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setCommunicationDialog({ open: false, trialId: null })} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleSendMessage} color="primary">
+            Send
+          </Button>
+        </DialogActions>
       </Dialog>
 
       <ScrollTop>
-        <StyledFab color="secondary" size="small" aria-label="scroll back to top">
+        <Fab color="primary" size="small" aria-label="scroll back to top">
           <KeyboardArrowUpIcon />
-        </StyledFab>
+        </Fab>
       </ScrollTop>
     </ThemeProvider>
   );

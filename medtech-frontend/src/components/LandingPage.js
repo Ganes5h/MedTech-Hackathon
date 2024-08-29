@@ -64,7 +64,7 @@ const LandingPage = () => {
             transition={{ duration: 0.5, delay: 0.6 }}
             className="space-x-4"
           >
-            <Link to="/research-studies" className="bg-blue-600 text-white px-10 py-4 rounded-full text-lg font-semibold hover:bg-blue-700 transition shadow-lg hover:shadow-xl inline-flex items-center transform hover:scale-105">
+            <Link to="/public" className="bg-blue-600 text-white px-10 py-4 rounded-full text-lg font-semibold hover:bg-blue-700 transition shadow-lg hover:shadow-xl inline-flex items-center transform hover:scale-105">
               Explore Research Studies
               <ArrowRight className="ml-2" size={24} />
             </Link>

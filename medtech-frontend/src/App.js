@@ -9,6 +9,7 @@ import ResearchParticipant from './components/ResearchParticipant';
 import LandingPage from './components/LandingPage';
 import ResearchStudiesPage from './components/researchStudies';
 import CreateResearchPage from './components/createResearch';
+import PublicResearch from './components/publicresearch'
 function App() {
   return (
     <Router>
@@ -21,6 +22,7 @@ function App() {
           <Route path='/research-studies'element={<ResearchStudiesPage/>}/>
           <Route path='/participant'element={<ResearchParticipant/>}/>
           <Route path='/create'element={<CreateResearchPage/>}/>
+          <Route path='/public'element={<PublicResearch/>}/>
 
         </Routes>
       </div>

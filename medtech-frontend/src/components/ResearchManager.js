@@ -477,7 +477,7 @@ const theme = createTheme({
   
     const handleParticipantRequest = async (requestId, action) => {
       try {
-        await axios.put(`http://localhost:5000/api/participant-request/${requestId}`, { status: action });
+        await axios.put(`http://localhost:5000/api/participant/handle/${requestId}`, { status: action });
         setSuccess(`Participant request ${action === 'accepted' ? 'accepted' : 'rejected'} successfully`);
         fetchResearches();
         setRequestsDialog((prev) => ({
