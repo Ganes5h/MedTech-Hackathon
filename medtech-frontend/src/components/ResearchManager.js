@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
@@ -44,33 +43,61 @@ import {
 } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
 
-
-// Create a custom theme
+// Create a custom theme with a more vibrant and modern color palette
 const theme = createTheme({
     palette: {
       primary: {
-        main: '#1976d2',
+        main: '#2196f3', // A vibrant blue
+        light: '#64b5f6',
+        dark: '#1976d2',
       },
       secondary: {
-        main: '#dc004e',
+        main: '#ff4081', // A bright pink
+        light: '#ff80ab',
+        dark: '#c51162',
       },
       background: {
         default: '#f5f5f5',
+        paper: '#ffffff',
+      },
+      text: {
+        primary: '#212121',
+        secondary: '#757575',
       },
     },
     typography: {
       fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
       h1: {
         fontSize: '2.5rem',
-        fontWeight: 500,
+        fontWeight: 700,
+        color: '#2196f3',
       },
       h2: {
         fontSize: '2rem',
-        fontWeight: 500,
+        fontWeight: 600,
       },
       h3: {
         fontSize: '1.75rem',
         fontWeight: 500,
+      },
+    },
+    components: {
+      MuiButton: {
+        styleOverrides: {
+          root: {
+            borderRadius: 8,
+            textTransform: 'none',
+            fontWeight: 600,
+          },
+        },
+      },
+      MuiCard: {
+        styleOverrides: {
+          root: {
+            borderRadius: 16,
+            boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+          },
+        },
       },
     },
   });
@@ -85,82 +112,83 @@ const theme = createTheme({
   
   const StyledChip = styled(Chip)(({ theme }) => ({
     margin: theme.spacing(0.5),
+    fontWeight: 600,
   }));
   
   const ResearchItem = ({ research, onCreateTrial, onViewTrials, onViewRequests }) => {
     const [participants, setParticipants] = useState(0);
   
     useEffect(() => {
-      const fetchParticipants = async () => {
-        try {
-          const response = await axios.get(`http://localhost:5000/api/participants/${research._id}`);
-          setParticipants(response.data.totalParticipants);
-        } catch (error) {
-          console.error('Failed to fetch participants:', error);
-        }
-      };
-      fetchParticipants();
-    }, [research._id]);
+        const fetchParticipants = async () => {
+          try {
+            const response = await axios.get(`http://localhost:5000/api/participants/${research._id}`);
+            setParticipants(response.data.totalParticipants);
+          } catch (error) {
+            console.error('Failed to fetch participants:', error);
+          }
+        };
+        fetchParticipants();
+      }, [research._id]);
   
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 50 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 50 }}
-        transition={{ duration: 0.5 }}
-      >
-        <StyledCard>
-          <CardHeader
-            title={research.title}
-            subheader={`Created on ${new Date(research.createdAt).toLocaleDateString()}`}
-            action={
-              <IconButton onClick={() => onViewRequests(research._id)}>
-                <PeopleOutline />
-              </IconButton>
-            }
-          />
-          <CardContent>
-            <Typography variant="body2" color="text.secondary" gutterBottom>
-              {research.description}
-            </Typography>
-            <Box display="flex" justifyContent="space-between" alignItems="center" mt={2}>
-              <StyledChip
-                icon={<PeopleOutline />}
-                label={`${participants} Participants`}
-                color="primary"
-                variant="outlined"
-              />
-              <StyledChip
-                icon={<Science />}
-                label={`${research.trials.length} Trials`}
-                color="secondary"
-                variant="outlined"
-              />
-            </Box>
-            <Box mt={2}>
-              <Typography variant="caption" color="text.secondary">
-                Progress
+      return (
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 50 }}
+          transition={{ duration: 0.5 }}
+        >
+          <StyledCard>
+            <CardHeader
+              title={research.title}
+              subheader={`Created on ${new Date(research.createdAt).toLocaleDateString()}`}
+              action={
+                <IconButton onClick={() => onViewRequests(research._id)} color="primary">
+                  <PeopleOutline />
+                </IconButton>
+              }
+            />
+            <CardContent>
+              <Typography variant="body2" color="text.secondary" gutterBottom>
+                {research.description}
               </Typography>
-              <LinearProgress
-                variant="determinate"
-                value={(participants / research.targetParticipants) * 100}
-                sx={{ height: 10, borderRadius: 5 }}
-              />
-            </Box>
-          </CardContent>
-          <CardActions>
-            <Button startIcon={<Add />} onClick={() => onCreateTrial(research._id)} color="primary" variant="contained">
-              Create Trial
-            </Button>
-            <Button startIcon={<VisibilityOutlined />} onClick={() => onViewTrials(research._id)} color="secondary">
-              View Trials
-            </Button>
-          </CardActions>
-        </StyledCard>
-      </motion.div>
-    );
-  };
-  
+              <Box display="flex" justifyContent="space-between" alignItems="center" mt={2}>
+                <StyledChip
+                  icon={<PeopleOutline />}
+                  label={`${participants} Participants`}
+                  color="primary"
+                  variant="outlined"
+                />
+                <StyledChip
+                  icon={<Science />}
+                  label={`${research.trials.length} Trials`}
+                  color="secondary"
+                  variant="outlined"
+                />
+              </Box>
+              <Box mt={2}>
+                <Typography variant="caption" color="text.secondary">
+                  Progress
+                </Typography>
+                <LinearProgress
+                  variant="determinate"
+                  value={(participants / research.targetParticipants) * 100}
+                  sx={{ height: 10, borderRadius: 5 }}
+                />
+              </Box>
+            </CardContent>
+            <CardActions>
+              <Button startIcon={<Add />} onClick={() => onCreateTrial(research._id)} color="primary" variant="contained" fullWidth>
+                Create Trial
+              </Button>
+              <Button startIcon={<VisibilityOutlined />} onClick={() => onViewTrials(research._id)} color="secondary" variant="outlined" fullWidth>
+                View Trials
+              </Button>
+            </CardActions>
+          </StyledCard>
+        </motion.div>
+      );
+    };
+    
   const CreateTrialDialog = ({ open, onClose, onSubmit, researchId }) => {
     const [activeStep, setActiveStep] = useState(0);
     const [trialData, setTrialData] = useState({
@@ -462,53 +490,54 @@ const theme = createTheme({
     };
   
     return (
-      <ThemeProvider theme={theme}>
-        <Container maxWidth="lg">
-          <Typography variant="h1" component="h1" gutterBottom>
-            Manage Research
-          </Typography>
-          {error && (
-            <Alert severity="error" onClose={() => setError('')}>
-              {error}
-            </Alert>
-          )}
-          {success && (
-            <Alert severity="success" onClose={() => setSuccess('')}>
-              {success}
-            </Alert>
-          )}
-          <Grid container spacing={3}>
-            {researches.map((research) => (
-              <Grid item xs={12} sm={6} md={4} key={research._id}>
-                <ResearchItem
-                  research={research}
-                  onCreateTrial={() => setCreateTrialDialog({ open: true, researchId: research._id })}
-                  onViewTrials={handleViewTrials}
-                  onViewRequests={handleViewRequests}
-                />
-              </Grid>
-            ))}
-          </Grid>
-          <CreateTrialDialog
-            open={createTrialDialog.open}
-            onClose={() => setCreateTrialDialog({ open: false, researchId: null })}
-            onSubmit={handleCreateTrial}
-            researchId={createTrialDialog.researchId}
-          />
-          <TrialsDialog
-            open={trialsDialog.open}
-            onClose={() => setTrialsDialog({ open: false, trials: [] })}
-            trials={trialsDialog.trials}
-          />
-          <ParticipantRequestsDialog
-            open={requestsDialog.open}
-            onClose={() => setRequestsDialog({ open: false, requests: [] })}
-            requests={requestsDialog.requests}
-            onAccept={(requestId) => handleParticipantRequest(requestId, 'accepted')}
-            onReject={(requestId) => handleParticipantRequest(requestId, 'rejected')}
-          />
-        </Container>
-      </ThemeProvider>
-    );
-  };
+        <ThemeProvider theme={theme}>
+          <Container maxWidth="lg" sx={{ py: 4 }}>
+            <Typography variant="h1" component="h1" gutterBottom align="center">
+              Manage Research
+            </Typography>
+            {error && (
+              <Alert severity="error" onClose={() => setError('')} sx={{ mb: 2 }}>
+                {error}
+              </Alert>
+            )}
+            {success && (
+              <Alert severity="success" onClose={() => setSuccess('')} sx={{ mb: 2 }}>
+                {success}
+              </Alert>
+            )}
+            <Grid container spacing={3}>
+              {researches.map((research) => (
+                <Grid item xs={12} sm={6} md={4} key={research._id}>
+                  <ResearchItem
+                    research={research}
+                    onCreateTrial={() => setCreateTrialDialog({ open: true, researchId: research._id })}
+                    onViewTrials={handleViewTrials}
+                    onViewRequests={handleViewRequests}
+                  />
+                </Grid>
+              ))}
+            </Grid>
+            <CreateTrialDialog
+              open={createTrialDialog.open}
+              onClose={() => setCreateTrialDialog({ open: false, researchId: null })}
+              onSubmit={handleCreateTrial}
+              researchId={createTrialDialog.researchId}
+            />
+            <TrialsDialog
+              open={trialsDialog.open}
+              onClose={() => setTrialsDialog({ open: false, trials: [] })}
+              trials={trialsDialog.trials}
+            />
+            <ParticipantRequestsDialog
+              open={requestsDialog.open}
+              onClose={() => setRequestsDialog({ open: false, requests: [] })}
+              requests={requestsDialog.requests}
+              onAccept={(requestId) => handleParticipantRequest(requestId, 'accepted')}
+              onReject={(requestId) => handleParticipantRequest(requestId, 'rejected')}
+            />
+          </Container>
+        </ThemeProvider>
+      );
+    };
+    
 export default ManageResearchPage;
