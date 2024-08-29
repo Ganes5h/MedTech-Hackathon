@@ -3,6 +3,7 @@ const Research = require('../models/ResearchModel');
 const User = require('../models/userModel');
 
 // Request to Join Research
+// This api will be integrated in the particicapnt who can request for the research
 exports.requestToJoinResearch = async (req, res) => {
   const { researchId } = req.body;
 
@@ -31,6 +32,7 @@ exports.requestToJoinResearch = async (req, res) => {
 };
 
 // Handle Participant Request (Accept/Reject)
+// This is to handle the request need to be integrated in research manager 
 exports.handleParticipantRequest = async (req, res) => {
   const { researchId, participantId, action } = req.body;
 

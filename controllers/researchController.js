@@ -66,6 +66,7 @@ exports.getResearch = async (req, res) => {
   };
 
 // Get All Researches by Researcher
+// Research Manager
 exports.getResearchesByResearcher = async (req, res) => {
   try {
     const id = req.params.id
@@ -124,6 +125,7 @@ exports.deleteResearch = async (req, res) => {
 };
 
 // Add Participant to Research
+// This api is for the research can directly add participant will be integrated in research manager
 exports.addParticipantToResearch = async (req, res) => {
   const { researchId } = req.body;
 
@@ -152,6 +154,7 @@ exports.addParticipantToResearch = async (req, res) => {
 };
 
 // Remove Participant from Research
+//This also should be integrated in the research manager 
 exports.removeParticipantFromResearch = async (req, res) => {
   const { researchId } = req.body;
 
@@ -175,6 +178,7 @@ exports.removeParticipantFromResearch = async (req, res) => {
 };
 
 // Get Researches by Participant ID
+// In participant 
 exports.getResearchesByParticipant = async (req, res) => {
     try {
       const participantId = req.params.participantId;
