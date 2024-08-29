@@ -3,6 +3,7 @@ const Research = require('../models/ResearchModel');
 const User = require('../models/userModel');
 const { validationResult } = require('express-validator');
 const upload = require('../middlewares/upload')
+const mongoose = require('mongoose')
 // Create Research
 exports.createResearch = [
     upload.array('mediaFiles', 5), // Max 5 files can be uploaded at once
@@ -49,6 +50,20 @@ exports.getResearchById = async (req, res) => {
     res.status(500).send('Server Error');
   }
 };
+
+// Get Research 
+exports.getResearch = async (req, res) => {
+    try {
+      const research = await Research.find();
+      if (!research) {
+        return res.status(404).json({ msg: 'Research not found' });
+      }
+      res.json(research);
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).send('Server Error');
+    }
+  };
 
 // Get All Researches by Researcher
 exports.getResearchesByResearcher = async (req, res) => {
@@ -158,3 +173,24 @@ exports.removeParticipantFromResearch = async (req, res) => {
     res.status(500).send('Server Error');
   }
 };
+
+// Get Researches by Participant ID
+exports.getResearchesByParticipant = async (req, res) => {
+    try {
+      const participantId = req.params.participantId;
+  
+      // Fetch all researches where the participant ID is in the participants array
+      const researches = await Research.find({ participants: participantId })
+        .populate('createdBy', 'name email')
+        .populate('trials');
+  
+      if (!researches || researches.length === 0) {
+        return res.status(404).json({ msg: 'No researches found for this participant' });
+      }
+  
+      res.json(researches);
+    } catch (err) {
+      console.error('Error fetching researches:', err.message);
+      res.status(500).send('Server Error');
+    }
+  };

@@ -7,7 +7,7 @@ const { requestToJoinResearch, handleParticipantRequest,getNumberOfParticipantRe
 const auth = require('../middlewares/auth');
 
 router.post('/request', requestToJoinResearch);
-router.post('/handle',handleParticipantRequest)
+router.put('/handle',handleParticipantRequest)
 router.get('/:researchId/participant-requests', getNumberOfParticipantRequests);
-router.get('/participants/:id')
+router.get('/participants/:id',getNumberOfParticipant)
 module.exports = router;
