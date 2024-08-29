@@ -8,6 +8,6 @@ router.post('/', createTrial);  // Create trial
 router.post('/stage', addStageToTrial);  // Add stage to trial
 router.post('/result', addResultToStage);  // Add result to stage
 router.post('/communication', addCommunicationToTrial);  // Add communication to trial
-router.get('/:researchId', getTrialsByResearch);  
+router.get('/get/:researchId', getTrialsByResearch);  
 
 module.exports = router;

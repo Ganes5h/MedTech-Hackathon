@@ -92,38 +92,38 @@ exports.addResultToStage = async (req, res) => {
 // Add Communication to Trial
 // This is to handle the communication between the memebers need to design a proper layout to handle communication
 exports.addCommunicationToTrial = async (req, res) => {
-  const { trialId, participantId, message } = req.body;
-
-  try {
-    const trial = await Trial.findById(trialId);
-    if (!trial) {
-      return res.status(404).json({ msg: 'Trial not found' });
+    const { trialId, participantId, message } = req.body;
+  
+    try {
+      const trial = await Trial.findById(trialId);
+      if (!trial) {
+        return res.status(404).json({ msg: 'Trial not found' });
+      }
+  
+      if (!trial.research.participants.includes(participantId) && trial.createdBy.toString() !== req.user.id) {
+        return res.status(401).json({ msg: 'Participant not authorized' });
+      }
+  
+      trial.communications.push({
+        participant: participantId,
+        message
+      });
+  
+      // Create a notification (optional)
+      const notification = new Notification({
+        user: participantId,
+        message: `New message in trial ${trialId}`
+      });
+  
+      await notification.save();
+  
+      await trial.save();
+      res.json(trial);
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).send('Server Error');
     }
-
-    // if (!trial.communications.find(c => c.participant.toString() === participantId.toString())) {
-    //   return res.status(401).json({ msg: 'Participant not authorized' });
-    // }
-
-    trial.communications.push({
-      participant: participantId,
-      message
-    });
-
-    // Create a notification (optional)
-    const notification = new Notification({
-      user: participantId,
-      message: `New message in trial ${trialId}`
-    });
-
-    await notification.save();
-
-    await trial.save();
-    res.json(trial);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
-  }
-};
+  };
 
 // Get Trials by Research
 exports.getTrialsByResearch = async (req, res) => {
